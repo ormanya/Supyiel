@@ -156,7 +156,7 @@ class LastFM(callbacks.Plugin):
         else:
             nick = msg.nick
             if not self.db.get(msg.prefix):
-                irc.reply("Please register with the bot using the command \".setusername <LastFM username>\"")
+                irc.reply("Please register with the bot using the command \".lastfm set <LastFM username>\"")
             user = (user or self.db.get(msg.prefix) or msg.nick)
 
         # see http://www.lastfm.de/api/show/user.getrecenttracks
