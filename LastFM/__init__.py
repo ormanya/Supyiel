@@ -39,7 +39,7 @@ import supybot.world as world
 
 # Use this for the version of this plugin.  You may wish to put a CVS keyword
 # in here if you're keeping the plugin in CVS or some similar system.
-__version__ = "2017.01.16+git"
+__version__ = "2017.02.04+git"
 
 # Replace this with an appropriate author or supybot.Author instance.
 __author__ = supybot.Author("Kevin Funk", "KRF", "krf@electrostorm.net")
@@ -52,10 +52,13 @@ __contributors__ = {
             supybot.Author('James Lu', 'GLolol',
                         'GLolol@overdrivenetworks.com'):
                         ['Python 3 support', 'rewriting most of the plugin']
+            supybot.Author('Ormanya', 'Ormanya',
+                        'ormanyab@gmail.com'):
+                        ['wp', 'compare', 'various tweaks']
         }
 
 # This is a url where the most recent plugin package can be downloaded.
-__url__ = 'https://github.com/GLolol/SupyPlugins/tree/master/LastFM'
+__url__ = 'https://github.com/ormanya/Supyiel/tree/master/LastFM'
 
 from . import config
 from . import plugin
