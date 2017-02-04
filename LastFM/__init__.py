@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 #
 # Copyright (c) 2008,2012 Kevin Funk
+# Copyright (c) 2016-2017 Ormanya
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
