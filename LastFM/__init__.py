@@ -51,10 +51,8 @@ __contributors__ = {
             ["misc"],
             supybot.Author('James Lu', 'GLolol',
                         'GLolol@overdrivenetworks.com'):
-                        ['Python 3 support', 'rewriting most of the plugin']
-            supybot.Author('Ormanya', 'Ormanya',
-                        'ormanyab@gmail.com'):
-                        ['wp', 'compare', 'various tweaks']
+                        ['Python 3 support', 'rewriting most of the plugin'],                        
+            supybot.Author('Ormanya', 'Ormanya', 'ormanyab@gmail.com'): ['wp', 'compare', 'various tweaks']
         }
 
 # This is a url where the most recent plugin package can be downloaded.
