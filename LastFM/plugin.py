@@ -230,20 +230,16 @@ class LastFM(callbacks.Plugin):
 
                     if results:
                         public_url = format('%u', results[0][2])
-                        print "Youtube link found: %s" % public_url
                     else:
-                        print "No Youtube link found"
                         time.sleep(2)
                         results = ddg.search_core('site:soundcloud.com "%s - %s"' % (artist, track),
                                               channel_context=msg.args[0], max_results=1, show_snippet=False)
                         if results:
                             public_url = format('%u', results[0][2])
-                            print "Soundcloud link found: %s" % public_url
                         else:
-                            print "No Soundcloud link found"
+                            log.info("No Soundcloud link found for %s - %s", artist, track) 
                     
                 except:
-                    print "Error looking for link"
                     # If something breaks, log the error but don't cause the
                     # entire np request to fail.
                     error_txt = ('LastFM: failed to get public link for track %s - %s' % (artist, track))
