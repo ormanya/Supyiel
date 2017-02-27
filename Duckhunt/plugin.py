@@ -381,7 +381,7 @@ class DuckHunt(callbacks.Plugin):
 
 
     def _launchEvent(self, irc, msg, currentChannel):
-        currentChannel = msg.args[0]
+        # currentChannel = msg.args[0]
         now = time.time()
         if irc.isChannel(currentChannel):
             if(self.started.get(currentChannel) == True):
@@ -391,15 +391,24 @@ class DuckHunt(callbacks.Plugin):
 
 
 
-    def stop(self, irc, msg, args):
+    def stop(self, irc, msg, args, channel):
         """
+        [<channel>]
+
         Stops the current hunt
         """
 
-        currentChannel = msg.args[0]
-        if irc.isChannel(currentChannel):
+        if irc.isChannel(channel):
+            currentChannel = channel
+        elif irc.isChannel(msg.args[0]):
+            currentChannel = msg.args[0]
+        else:
+            irc.error('You have to be on a channel or specify a channel')
+            return
+
+        if True:
             if (self.started.get(currentChannel) == True):
-                self._end(irc, msg, args)
+                self._end(irc, msg, args, currentChannel)
 
             # If someone uses the stop command,
             # we stop the scheduler, even if autoRestart is enabled
@@ -670,21 +679,21 @@ class DuckHunt(callbacks.Plugin):
                     if not nick:
                         msgstring = ''
                         # for each day of week
-                        for i in (1,2,3,4,5,6,7):
+                        for i in range(1,7):
                             if self.channelweek[channel][week].get(i):
                                 # Getting winner of the day
                                 winnernick, winnerscore = max(iter(self.channelweek[channel][week][i].items()), key=lambda k_v:(k_v[1],k_v[0]))
                                 msgstring += self.dayname[i - 1] + ": x" + winnernick + "x ("+ str(winnerscore) + ") | "
 
-                        # Getting all scores, to get the winner of the week
-                        for player in list(self.channelweek[channel][week][i].keys()):
-                            try:
-                                weekscores[player] += self.channelweek[channel][week][i][player]
-                            except:
-                                weekscores[player] = self.channelweek[channel][week][i][player]
+                                # Getting all scores, to get the winner of the week
+                                for player in list(self.channelweek[channel][week][i].keys()):
+                                    try:
+                                        weekscores[player] += self.channelweek[channel][week][i][player]
+                                    except:
+                                        weekscores[player] = self.channelweek[channel][week][i][player]
                              
 
-                        if msgstring != "":
+                        if msgstring != '':
                             irc.reply("Scores for week " + str(week) + ": " + msgstring)
                             # Who's the winner at this point?
                             winnernick, winnerscore = max(iter(weekscores.items()), key=lambda k_v1:(k_v1[1],k_v1[0]))
@@ -933,7 +942,7 @@ class DuckHunt(callbacks.Plugin):
 
                         # End of Hunt
                         if (self.shoots[currentChannel]  == maxShoots):
-                            self._end(irc, msg, args)
+                            self._end(irc, msg, args, currentChannel)
 
                             # If autorestart is enabled, we restart a hunt automatically!
                             if self.registryValue('autoRestart', currentChannel):
@@ -1007,12 +1016,12 @@ class DuckHunt(callbacks.Plugin):
 
     
 
-    def _end(self, irc, msg, args):
+    def _end(self, irc, msg, args,currentChannel):
         """ 
         End of the hunt (is called when the hunts stop "naturally" or when someone uses the !stop command)
         """
 
-        currentChannel = msg.args[0]
+        #currentChannel = msg.args[0]
 
         # End the hunt
         self.started[currentChannel] = False
