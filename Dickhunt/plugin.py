@@ -715,7 +715,7 @@ class dickHunt(callbacks.Plugin):
 							if self.channelweek[channel][week].get(i):
 								# Getting winner of the day
 								winnernick, winnerscore = max(self.channelweek[channel][week][i].iteritems(), key=lambda (k,v):(v,k))
-                                msgstring += self.dayname[i - 1] + ": " + self.hl_protect(winnernick) + " (" + str(winnerscore) + ") | "
+								msgstring += self.dayname[i - 1] + ": " + self.hl_protect(winnernick) + " (" + str(winnerscore) + ") | "
 
 								# Getting all scores, to get the winner of the week
 								for player in self.channelweek[channel][week][i].keys():
@@ -959,7 +959,7 @@ class dickHunt(callbacks.Plugin):
 					if msg.nick not in self.needslube[currentChannel].keys():
 						self.needslube[currentChannel][msg.nick] = False
 					if (random.random() < self.missprobability[currentChannel]) or self.needslube[currentChannel][msg.nick]:
-						irc.reply("%s, you need more lube!" % (msg.nick))
+						irc.reply("%s, you need more lube!" % self.hl_protect(msg.nick))
 						self.needslube[currentChannel][msg.nick] = True 
 					else:
 
@@ -973,7 +973,7 @@ class dickHunt(callbacks.Plugin):
 								self.scores[currentChannel] = {} 
 								self.scores[currentChannel][msg.nick] = 1
 
-						irc.reply("\x02%s~~~\x02 %s: %i (%.2f seconds)" % (self.dickColor[currentChannel], msg.nick,  self.scores[currentChannel][msg.nick], benddelay))
+						irc.reply("\x02%s~~~\x02 %s: %i (%.2f seconds)" % (self.dickColor[currentChannel], self.hl_protect(msg.nick),  self.scores[currentChannel][msg.nick], benddelay))
 
 						self.averagetime[currentChannel] += benddelay
 
@@ -1101,7 +1101,7 @@ class dickHunt(callbacks.Plugin):
 
 			# Is there a perfect?
 			if (winnerscore == maxBends):
-				irc.sendMsg(ircmsgs.privmsg(currentChannel, "\o/ %s: %i dicks out of %i: perfect!!! +%i \o/" % (self.hl_protext(winnernick), winnerscore, maxBends, self.perfectbonus)))
+				irc.sendMsg(ircmsgs.privmsg(currentChannel, "\o/ %s: %i dicks out of %i: perfect!!! +%i \o/" % (self.hl_protect(winnernick), winnerscore, maxBends, self.perfectbonus)))
 				self.scores[currentChannel][winnernick] += self.perfectbonus
 			else:
 				# Showing scores
@@ -1123,7 +1123,7 @@ class dickHunt(callbacks.Plugin):
 			if (self.toptimes.get(currentChannel)):
 				key,value = min(self.toptimes.get(currentChannel).iteritems(), key=lambda (k,v):(v,k))
 			if (channelbesttime and value < channelbesttime):
-				recordmsg = '. This is the new record for this channel! (previous record was held by ' + self.hl_protext(channelbestnick) + ' with ' + str(round(channelbesttime,2)) +  ' seconds)'
+				recordmsg = '. This is the new record for this channel! (previous record was held by ' + self.hl_protect(channelbestnick) + ' with ' + str(round(channelbesttime,2)) +  ' seconds)'
 			else:
 				try:
 					if(value < self.channeltimes[currentChannel][key]):
@@ -1131,7 +1131,7 @@ class dickHunt(callbacks.Plugin):
 				except:
 					recordmsg = ''
 
-			irc.sendMsg(ircmsgs.privmsg(currentChannel, "Best time: %s with %.2f seconds%s" % (self.hl_protext(key), value, recordmsg)))
+			irc.sendMsg(ircmsgs.privmsg(currentChannel, "Best time: %s with %.2f seconds%s" % (self.hl_protect(key), value, recordmsg)))
 
 			# Getting channel worst time (to see if the worst time of this hunt is worst)
 			channelworstnick = None
@@ -1145,7 +1145,7 @@ class dickHunt(callbacks.Plugin):
 			if (self.worsttimes.get(currentChannel)):
 				key,value = max(self.worsttimes.get(currentChannel).iteritems(), key=lambda (k,v):(v,k))
 			if (channelworsttime and value > channelworsttime):
-				recordmsg = '. This is the new longest time for this channel! (previous longest time was held by ' + self.hl_protext(channelworstnick) + ' with ' + str(round(channelworsttime,2)) +  ' seconds)'
+				recordmsg = '. This is the new longest time for this channel! (previous longest time was held by ' + self.hl_protect(channelworstnick) + ' with ' + str(round(channelworsttime,2)) +  ' seconds)'
 			else:
 				try:
 					if(value > self.channelworsttimes[currentChannel][key]):
@@ -1155,7 +1155,7 @@ class dickHunt(callbacks.Plugin):
 
 			# Only display worst time if something new
 			if (recordmsg != ''):
-				irc.sendMsg(ircmsgs.privmsg(currentChannel, "Longest time: %s with %.2f seconds%s" % (self.hl_protext(key), value, recordmsg)))
+				irc.sendMsg(ircmsgs.privmsg(currentChannel, "Longest time: %s with %.2f seconds%s" % (self.hl_protect(key), value, recordmsg)))
 
 			# Showing average shooting time:
 			#if (self.bends[currentChannel] > 1):
@@ -1182,9 +1182,9 @@ class dickHunt(callbacks.Plugin):
 						winnernick, winnerscore = max(weekscores.iteritems(), key=lambda (k,v):(v,k))
 						if (winnernick != self.leader[currentChannel]):
 							if self.leader[currentChannel] != None:
-								irc.sendMsg(ircmsgs.privmsg(currentChannel, "%s took the lead for the week over %s with %i points." % (self.hl_protext(winnernick), self.leader[currentChannel], winnerscore)))
+								irc.sendMsg(ircmsgs.privmsg(currentChannel, "%s took the lead for the week over %s with %i points." % (self.hl_protect(winnernick), self.leader[currentChannel], winnerscore)))
 							else:
-								irc.sendMsg(ircmsgs.privmsg(currentChannel, "%s has the lead for the week with %i points." % (self.hl_protext(winnernick), winnerscore)))
+								irc.sendMsg(ircmsgs.privmsg(currentChannel, "%s has the lead for the week with %i points." % (self.hl_protect(winnernick), winnerscore)))
 							self.leader[currentChannel] = winnernick
 
 
