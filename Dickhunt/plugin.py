@@ -706,20 +706,20 @@ class dickHunt(callbacks.Plugin):
 					if not nick:
 						msgstring = ''
 						# for each day of week
-						for i in (1,2,3,4,5,6,7):
+						for i in range(1,7):
 							if self.channelweek[channel][week].get(i):
 								# Getting winner of the day
 								winnernick, winnerscore = max(self.channelweek[channel][week][i].iteritems(), key=lambda (k,v):(v,k))
 								msgstring += self.dayname[i - 1] + ": " + self.hl_protection_str + winnernick + self.hl_protection_str + " ("+ str(winnerscore) + ") | "
 
-						# Getting all scores, to get the winner of the week
-						for player in self.channelweek[channel][week][i].keys():
-							try:
-								weekscores[player] += self.channelweek[channel][week][i][player]
-							except:
-								weekscores[player] = self.channelweek[channel][week][i][player]
+								# Getting all scores, to get the winner of the week
+								for player in self.channelweek[channel][week][i].keys():
+									try:
+										weekscores[player] += self.channelweek[channel][week][i][player]
+									except:
+										weekscores[player] = self.channelweek[channel][week][i][player]
 							 
-						if msgstring != "":
+						if msgstring != '':
 							irc.reply("Scores for week " + str(week) + ": " + msgstring)
 							# Who's the winner at this point?
 							winnernick, winnerscore = max(weekscores.iteritems(), key=lambda (k,v):(v,k))
@@ -1073,11 +1073,6 @@ class dickHunt(callbacks.Plugin):
 		""" 
 		End of the hunt (is called when the hunts stop "naturally" or when someone uses the !stop command)
 		"""
-		if self.debugLog:
-			f = open(self.debugFile, 'a')
-			f.write('_end channel: %s' % currentChannel)
-			f.write('--------------------------------------------------------------------------------------------\n')
-			f.close() 
 
 		# currentChannel = msg.args[0]
 
