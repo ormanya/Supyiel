@@ -898,7 +898,7 @@ class DuckHunt(callbacks.Plugin):
 
                     # Did the player missed it?
                     if (random.random() < self.missprobability[currentChannel]):
-                        irc.reply("%s, you missed the duck!" % (msg.nick))
+                        irc.reply("%s, you missed the duck!" % (self.hl_protect(msg.nick)))
                     else:
 
                         # Adds one point for the nick that shot the duck
@@ -911,7 +911,7 @@ class DuckHunt(callbacks.Plugin):
                                 self.scores[currentChannel] = {} 
                                 self.scores[currentChannel][msg.nick] = 1
 
-                        irc.reply("\_x< %s: %i (%.2f seconds)" % (msg.nick,  self.scores[currentChannel][msg.nick], bangdelay))
+                        irc.reply("\_x< %s: %i (%.2f seconds)" % (self.hl_protect(msg.nick),  self.scores[currentChannel][msg.nick], bangdelay))
 
                         self.averagetime[currentChannel] += bangdelay
 
@@ -1050,7 +1050,7 @@ class DuckHunt(callbacks.Plugin):
 
             # Is there a perfect?
             if (winnerscore == maxShoots):
-                irc.sendMsg(ircmsgs.privmsg(currentChannel, "\o/ %s: %i ducks out of %i: perfect!!! +%i \o/" % (self.hl_protext(winnernick), winnerscore, maxBends, self.perfectbonus)))
+                irc.sendMsg(ircmsgs.privmsg(currentChannel, "\o/ %s: %i ducks out of %i: perfect!!! +%i \o/" % (self.hl_protect(winnernick), winnerscore, maxBends, self.perfectbonus)))
                 self.scores[currentChannel][winnernick] += self.perfectbonus
             else:
                 # Showing scores
@@ -1072,7 +1072,7 @@ class DuckHunt(callbacks.Plugin):
             if (self.toptimes.get(currentChannel)):
                 key,value = min(iter(self.toptimes.get(currentChannel).items()), key=lambda k_v6:(k_v6[1],k_v6[0]))
             if (channelbesttime and value < channelbesttime):
-                recordmsg = '. This is the new record for this channel! (previous record was held by ' + self.hl_protext(channelbestnick) + ' with ' + str(round(channelbesttime,2)) +  ' seconds)'
+                recordmsg = '. This is the new record for this channel! (previous record was held by ' + self.hl_protect(channelbestnick) + ' with ' + str(round(channelbesttime,2)) +  ' seconds)'
             else:
                 try:
                     if(value < self.channeltimes[currentChannel][key]):
@@ -1080,7 +1080,7 @@ class DuckHunt(callbacks.Plugin):
                 except:
                     recordmsg = ''
 
-            irc.sendMsg(ircmsgs.privmsg(currentChannel, "Best time: %s with %.2f seconds%s" % (self.hl_protext(key), value, recordmsg)))
+            irc.sendMsg(ircmsgs.privmsg(currentChannel, "Best time: %s with %.2f seconds%s" % (self.hl_protect(key), value, recordmsg)))
 
             # Getting channel worst time (to see if the worst time of this hunt is worst)
             channelworstnick = None
@@ -1094,7 +1094,7 @@ class DuckHunt(callbacks.Plugin):
             if (self.worsttimes.get(currentChannel)):
                 key,value = max(iter(self.worsttimes.get(currentChannel).items()), key=lambda k_v8:(k_v8[1],k_v8[0]))
             if (channelworsttime and value > channelworsttime):
-                recordmsg = '. This is the new longest time for this channel! (previous longest time was held by ' + self.hl_protext(channelworstnick) + ' with ' + str(round(channelworsttime,2)) +  ' seconds)'
+                recordmsg = '. This is the new longest time for this channel! (previous longest time was held by ' + self.hl_protect(channelworstnick) + ' with ' + str(round(channelworsttime,2)) +  ' seconds)'
             else:
                 try:
                     if(value > self.channelworsttimes[currentChannel][key]):
@@ -1104,7 +1104,7 @@ class DuckHunt(callbacks.Plugin):
 
             # Only display worst time if something new
             if (recordmsg != ''):
-                irc.sendMsg(ircmsgs.privmsg(currentChannel, "Longest time: %s with %.2f seconds%s" % (self.hl_protext(key), value, recordmsg)))
+                irc.sendMsg(ircmsgs.privmsg(currentChannel, "Longest time: %s with %.2f seconds%s" % (self.hl_protect(key), value, recordmsg)))
 
             # Showing average shooting time:
             #if (self.shoots[currentChannel] > 1):
@@ -1132,9 +1132,9 @@ class DuckHunt(callbacks.Plugin):
                         winnernick, winnerscore = max(iter(weekscores.items()), key=lambda k_v3:(k_v3[1],k_v3[0]))
                         if (winnernick != self.leader[currentChannel]):
                             if self.leader[currentChannel] != None:
-                                irc.sendMsg(ircmsgs.privmsg(currentChannel, "%s took the lead for the week over %s with %i points." % (self.hl_protext(winnernick), self.leader[currentChannel], winnerscore)))
+                                irc.sendMsg(ircmsgs.privmsg(currentChannel, "%s took the lead for the week over %s with %i points." % (self.hl_protect(winnernick), self.leader[currentChannel], winnerscore)))
                             else:
-                                irc.sendMsg(ircmsgs.privmsg(currentChannel, "%s has the lead for the week with %i points." % (self.hl_protext(winnernick), winnerscore)))
+                                irc.sendMsg(ircmsgs.privmsg(currentChannel, "%s has the lead for the week with %i points." % (self.hl_protect(winnernick), winnerscore)))
                             self.leader[currentChannel] = winnernick
 
 
