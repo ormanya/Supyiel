@@ -1171,7 +1171,7 @@ class dickHunt(callbacks.Plugin):
 				if self.channelweek[currentChannel].get(self.woy):
 					msgstring = ''
 					# for each day of week
-					for i in (1,2,3,4,5,6,7):
+					for i in range(1,7):
 						if self.channelweek[currentChannel][self.woy].get(i):
 							# Getting all scores, to get the winner of the week
 							for player in self.channelweek[currentChannel][self.woy][i].keys():
@@ -1179,13 +1179,13 @@ class dickHunt(callbacks.Plugin):
 									weekscores[player] += self.channelweek[currentChannel][self.woy][i][player]
 								except:
 									weekscores[player] = self.channelweek[currentChannel][self.woy][i][player]
-						winnernick, winnerscore = max(weekscores.iteritems(), key=lambda (k,v):(v,k))
-						if (winnernick != self.leader[currentChannel]):
-							if self.leader[currentChannel] != None:
-								irc.sendMsg(ircmsgs.privmsg(currentChannel, "%s took the lead for the week over %s with %i points." % (self.hl_protect(winnernick), self.leader[currentChannel], winnerscore)))
-							else:
-								irc.sendMsg(ircmsgs.privmsg(currentChannel, "%s has the lead for the week with %i points." % (self.hl_protect(winnernick), winnerscore)))
-							self.leader[currentChannel] = winnernick
+					winnernick, winnerscore = max(weekscores.iteritems(), key=lambda (k,v):(v,k))
+					if (winnernick != self.leader[currentChannel]):
+						if self.leader[currentChannel] != None:
+							irc.sendMsg(ircmsgs.privmsg(currentChannel, "%s took the lead for the week over %s with %i points." % (self.hl_protect(winnernick), self.leader[currentChannel], winnerscore)))
+						else:
+							irc.sendMsg(ircmsgs.privmsg(currentChannel, "%s has the lead for the week with %i points." % (self.hl_protect(winnernick), winnerscore)))
+						self.leader[currentChannel] = winnernick
 
 
 
