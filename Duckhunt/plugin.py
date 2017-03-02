@@ -286,7 +286,7 @@ class DuckHunt(callbacks.Plugin):
 
         else:
             self.minthrottle[channel] = 3
-            self.maxthrottle[channel] = 60
+            self.maxthrottle[channel] = 5
 
         self.throttle[channel] = random.randint(self.minthrottle[channel], self.maxthrottle[channel])
 
@@ -886,7 +886,7 @@ class DuckHunt(callbacks.Plugin):
 
                 # Is the player reloading?
                 if (self.reloading[currentChannel].get(msg.nick) and time.time() - self.reloading[currentChannel][msg.nick] < self.reloadtime[currentChannel]):
-                    irc.reply("%s, you are reloading... (Reloading takes %i seconds)" % (hl_protect(msg.nick), self.reloadtime[currentChannel]))
+                    irc.reply("%s, you are reloading... (Reloading takes %i seconds)" % (self.hl_protect(msg.nick), self.reloadtime[currentChannel]))
                     return 0
                 
 
@@ -911,7 +911,8 @@ class DuckHunt(callbacks.Plugin):
                                 self.scores[currentChannel] = {} 
                                 self.scores[currentChannel][msg.nick] = 1
 
-                        irc.reply("\_x< %s: %i (%.2f seconds)" % (self.hl_protect(msg.nick),  self.scores[currentChannel][msg.nick], bangdelay))
+                        # irc.reply("\_x< %s: %i (%.2f seconds)" % (self.hl_protect(msg.nick),  self.scores[currentChannel][msg.nick], bangdelay))
+                        irc.sendMsg(ircmsgs.privmsg(currentChannel, "\_x< %s: %i (%.2f seconds)" % (self.hl_protect(msg.nick),  self.scores[currentChannel][msg.nick], bangdelay)))
 
                         self.averagetime[currentChannel] += bangdelay
 
@@ -1054,10 +1055,10 @@ class DuckHunt(callbacks.Plugin):
                 self.scores[currentChannel][winnernick] += self.perfectbonus
             else:
                 # Showing scores
-                #irc.reply("Winner: %s with %i points" % (winnernick, winnerscore))
-                #irc.reply(self.scores.get(currentChannel))
-                #TODO: Better display
-                irc.sendMsg(ircmsgs.privmsg(currentChannel, str(sorted(self.scores.get(currentChannel).iteritems(), key=lambda (k,v):(v,k), reverse=True))))
+                out_dict = sorted(self.scores.get(currentChannel).iteritems(), key=lambda (k,v):(v,k), reverse=True)
+                for i, (nick, score) in enumerate(out_dict):
+                    out_dict[i] = (self.hl_protect(nick), score)
+                irc.sendMsg(ircmsgs.privmsg(currentChannel, repr(out_dict).decode('raw_unicode_escape').replace("u'", "'")))
 
 
 
