@@ -973,7 +973,8 @@ class dickHunt(callbacks.Plugin):
 								self.scores[currentChannel] = {} 
 								self.scores[currentChannel][msg.nick] = 1
 
-						irc.reply("\x02%s~~~\x02 %s: %i (%.2f seconds)" % (self.dickColor[currentChannel], self.hl_protect(msg.nick),  self.scores[currentChannel][msg.nick], benddelay))
+						#irc.reply("\x02%s~~~\x02 %s: %i (%.2f seconds)" % (self.dickColor[currentChannel], self.hl_protect(msg.nick),  self.scores[currentChannel][msg.nick], benddelay))
+						irc.sendMsg(ircmsgs.privmsg(currentChannel, "\x02%s~~~\x02 %s: %i (%.2f seconds)" % (self.dickColor[currentChannel], self.hl_protect(msg.nick),  self.scores[currentChannel][msg.nick], benddelay)))
 
 						self.averagetime[currentChannel] += benddelay
 
@@ -1105,11 +1106,10 @@ class dickHunt(callbacks.Plugin):
 				self.scores[currentChannel][winnernick] += self.perfectbonus
 			else:
 				# Showing scores
-				#irc.reply("Winner: %s with %i points" % (winnernick, winnerscore))
-				#irc.reply(self.scores.get(currentChannel))
-				#TODO: Better display
-				irc.sendMsg(ircmsgs.privmsg(currentChannel, str(sorted(self.scores.get(currentChannel).iteritems(), key=lambda (k,v):(v,k), reverse=True))))
-
+				out_dict = sorted(self.scores.get(currentChannel).iteritems(), key=lambda (k,v):(v,k), reverse=True)
+				for i, (nick, score) in enumerate(out_dict):
+					out_dict[i] = (self.hl_protect(nick), score)
+				irc.sendMsg(ircmsgs.privmsg(currentChannel, repr(out_dict).decode('raw_unicode_escape').replace("u'", "'")))
 
 
 			# Getting channel best time (to see if the best time of this hunt is better)
