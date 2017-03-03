@@ -92,13 +92,12 @@ class DuckHunt(callbacks.Plugin):
     woy = int(time.strftime("%V")) # Week of year
     year = time.strftime("%Y") 
     dayname = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Caturday', 'Saturday', 'Sunday']
-    hl_protection_str = u'\uFEFF'
 
     def hl_protect(self, nick):
         """
         Inserts non-printing character in nick to prevent highlights
         """
-        return nick[0] + u'\uFEFF' + nick[1:]
+        return nick[0] + u'\u200B' + nick[1:]
 
     def _calc_scores(self, channel):
         """
