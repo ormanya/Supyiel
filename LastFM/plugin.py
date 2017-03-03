@@ -246,7 +246,7 @@ class LastFM(callbacks.Plugin):
                     log.exception(error_txt)        
 
 
-        nick_bold = ircutils.bold(nick[0]) + u'\uFEFF' + ircutils.bold(nick[1:])
+        nick_bold = ircutils.bold(nick[0]) + u'\u200B' + ircutils.bold(nick[1:])
         try:
            trackdata["@attr"]["nowplaying"]
            irc.reply('%s is listening to %s by %s%s %s' %
@@ -315,7 +315,7 @@ class LastFM(callbacks.Plugin):
                     album = ""
                 year = strftime("%Y")
 
-                nick_bold = ircutils.bold(nick[0]) + u'\uFEFF' + ircutils.bold(nick[1:]) 
+                nick_bold = ircutils.bold(nick[0]) + u'\u200B' + ircutils.bold(nick[1:]) 
                 try:
                    trackdata["@attr"]["nowplaying"]
                    irc.reply('%s is listening to %s by %s%s' % (nick_bold, ircutils.bold(track), ircutils.bold(artist), album))
