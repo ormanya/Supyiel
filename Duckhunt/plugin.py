@@ -285,8 +285,8 @@ class DuckHunt(callbacks.Plugin):
                 self.maxthrottle[channel] = 300
 
         else:
-            self.minthrottle[channel] = 3
-            self.maxthrottle[channel] = 5
+            self.minthrottle[channel] = 6
+            self.maxthrottle[channel] = 60
 
         self.throttle[channel] = random.randint(self.minthrottle[channel], self.maxthrottle[channel])
 
@@ -1051,7 +1051,8 @@ class DuckHunt(callbacks.Plugin):
 
             # Is there a perfect?
             if (winnerscore == maxShoots):
-                irc.sendMsg(ircmsgs.privmsg(currentChannel, "\o/ %s: %i ducks out of %i: perfect!!! +%i \o/" % (self.hl_protect(winnernick), winnerscore, maxShoots, self.perfectbonus)))
+                gender = random.choice(['is', 'er'])
+                irc.sendMsg(ircmsgs.privmsg(currentChannel, "\o/ %s shot all %i ducks!!! H%s prize is +%i to h%s score!!! \o/" % (self.hl_protect(winnernick), maxShoots, gender, self.perfectbonus, gender)))
                 self.scores[currentChannel][winnernick] += self.perfectbonus
             else:
                 # Showing scores
