@@ -161,17 +161,18 @@ class LastFM(callbacks.Plugin):
             user = (user or self.db.get(msg.prefix) or msg.nick)
 
         # see http://www.lastfm.de/api/show/user.getrecenttracks
-        url = "%sapi_key=%s&method=user.getrecenttracks&user=%s&format=json" % (self.APIURL, apiKey, user)
+        url = "%sapi_key=%s&method=user.getrecenttracks&user=%s&format=json" % (self.APIURL, apiKey, urllib.quote(user))
+        print url
         try:
             f = utils.web.getUrl(url).decode("utf-8")
         except utils.web.Error:
-            irc.error("Unknown LastFM user %s." % user, Raise=True)
+            irc.error("Error querying Last.FM for %s." % user, Raise=True)
         self.log.debug("LastFM.nowPlaying: url %s", url)
 
         try:
             data = json.loads(f)["recenttracks"]
         except KeyError:
-            irc.error("Unknown user %s." % user, Raise=True)
+            irc.error("Can't read recent tracks for %s." % user, Raise=True)
 
         user = data["@attr"]["user"]
         tracks = data["track"]
@@ -191,6 +192,24 @@ class LastFM(callbacks.Plugin):
         else:
             album = ""
         year = strftime("%Y")
+
+        # see http://www.last.fm/api/show/track.getInfo
+        url = "%sapi_key=%s&method=track.getInfo&user=%s&artist=%s&track=%s&format=json" % (self.APIURL, apiKey, urllib.quote(user), urllib.quote(artist), urllib.quote(track))
+        print url
+        try:
+            f = utils.web.getUrl(url).decode("utf-8")
+        except utils.web.Error:
+            irc.error("Error querying Last.FM for %s-%s." % (artist, track), Raise=True)
+        self.log.debug("LastFM.getInfo: url %s", url)
+
+        try:
+            data = json.loads(f)["track"]
+            playcount = data["userplaycount"]
+            playcountT = data["playcount"]
+        except KeyError:
+            self.log.debug("Can't find track info for %s-%s.", artist, track)
+            playcount = 1
+            playcountT = 1
 
         try:
 #            time = int(trackdata["date"]["uts"])  # Time of last listen
@@ -249,8 +268,8 @@ class LastFM(callbacks.Plugin):
         nick_bold = ircutils.bold(nick[0]) + u'\u200B' + ircutils.bold(nick[1:])
         try:
            trackdata["@attr"]["nowplaying"]
-           irc.reply('%s is listening to %s by %s%s %s' %
-                      (nick_bold, ircutils.bold(track), ircutils.bold(artist), album, public_url.strip('<>')))
+           irc.reply('%s is listening to %s by %s%s [%s/%s] %s' %
+                      (nick_bold, ircutils.bold(track), ircutils.bold(artist), album, playcount, playcountT, public_url.strip('<>')))
         except:
             irc.reply('%s listened to %s by %s%s %s %s' %
                       (nick_bold, ircutils.bold(track), ircutils.bold(artist), album, time_passed, public_url.strip('<>')))
