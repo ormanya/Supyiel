@@ -207,6 +207,7 @@ class LastFM(callbacks.Plugin):
             playcount = data["userplaycount"]
             playcountT = data["playcount"]
         except KeyError:
+            print "Error"
             self.log.debug("Can't find track info for %s-%s.", artist, track)
             playcount = 1
             playcountT = 1
