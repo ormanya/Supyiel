@@ -48,6 +48,7 @@ from time import strftime
 import time
 import pickle
 import urllib
+import re
 
 class LastFMDB():
     """
@@ -579,11 +580,12 @@ class LastFM(callbacks.Plugin):
         #irc.reply("%s and %s have %d artists in common, out of %s artists" % (nick1,nick2,commonArtists,totalArtists))
         irc.reply("%s and %s are %3.1f%% similar" % (nick1,nick2,100*float(commonArtists)/float(totalArtists)))
                 
-    @wrap([optional("something")])
-    def topartists(self, irc, msg, args, user):
-        """<user> [<user2>]
+    @wrap(["something", optional("something")])
+    def topartists(self, irc, msg, args, user, period):
+        """<user> [<period>]
 
-        Reports the top 10 artists for the user, over the last 12 months.
+        Reports the top 10 artists for the user, over the specified period. Options for <period> are "overall | 7day | 1month | 3month | 6month | 12month".
+        Default period is 1month.
         """
         #irc.error("This command is not ready yet. Stay tuned!", Raise=True)
 
@@ -613,6 +615,14 @@ class LastFM(callbacks.Plugin):
             user = self.db.get(msg.prefix)
             nick = msg.nick
 
+        if period is None:
+            period = "1month"
+        elif period not in ["overall", "7day", "1month", "3month", "6month", "12month"]:
+            irc.reply("%s is not a valid period" % period)
+            irc.error("Please select a period from 'overall | 7day | 1month | 3month | 6month | 12month'", Raise=True)
+        else:
+            period = period.lower()
+
 
         # Get library information for user
         #artists = [[],[]]
@@ -620,11 +630,21 @@ class LastFM(callbacks.Plugin):
         artistsplays = []
         artistcount = 0
         limit = 10 # specify artists to return per page (api supports max of 1000)
-        outstr = "%s's top artists for the last 12 months are:" % nick
+        user_out = nick[0] + u'\u200B' + nick[1:]        
+        if period == "overall":
+            outstr = "%s's overall top artists are:" % user_out
+        else:
+            duration = re.findall("\d+", period)[0]
+            if int(duration) > 1:
+                duration_unit = period[1:] + "s"
+            else:
+                duration_unit = period[1:]
+            outstr = "%s's top artists for the last %s %s are:" % (user_out, duration, duration_unit)
 
         # Get list of artists for each library
 
-        url = "%sapi_key=%s&method=library.getArtists&user=%s&limit=%d&period=12month&format=json" % (self.APIURL, apiKey, user, limit)
+#        url = "%sapi_key=%s&method=library.getArtists&user=%s&limit=%d&period=12month&format=json" % (self.APIURL, apiKey, user, limit)
+        url = "%sapi_key=%s&method=User.getTopArtists&user=%s&limit=%d&period=%s&format=json" % (self.APIURL, apiKey, user, limit, period)
         self.log.debug("LastFM.library: url %s", url)
         try:
             f = utils.web.getUrl(url).decode("utf-8")
@@ -633,7 +653,8 @@ class LastFM(callbacks.Plugin):
         libraryList = json.loads(f)
 
         
-        for artist in libraryList["artists"]["artist"]:
+        # prevent nick highlights
+        for artist in libraryList["topartists"]["artist"]:
             #artists.append(artist["name"])
             #artistsplays.append(artist["playcount"])
             outstr = outstr + (" %s [%s]," % (ircutils.bold(artist["name"]), artist["playcount"]))
@@ -642,7 +663,6 @@ class LastFM(callbacks.Plugin):
          
         #irc.reply("%s and %s have %d artists in common, out of %s artists" % (nick1,nick2,commonArtists,totalArtists))
         irc.reply(outstr)
-                
 
         
 
