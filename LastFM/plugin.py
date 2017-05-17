@@ -194,7 +194,7 @@ class LastFM(callbacks.Plugin):
         year = strftime("%Y")
 
         # see http://www.last.fm/api/show/track.getInfo
-        url = "%sapi_key=%s&method=track.getInfo&user=%s&artist=%s&track=%s&format=json" % (self.APIURL, apiKey, urllib.quote(user), urllib.quote(artist), urllib.quote(track))
+        url = "%sapi_key=%s&method=track.getInfo&user=%s&artist=%s&track=%s&format=json" % (self.APIURL, apiKey, urllib.quote(user), urllib.quote(artist.encode('utf-8')), urllib.quote(track.encode('utf-8')))
         print url
         try:
             f = utils.web.getUrl(url).decode("utf-8")
