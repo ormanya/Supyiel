@@ -200,7 +200,8 @@ class LastFM(callbacks.Plugin):
         try:
             f = utils.web.getUrl(url).decode("utf-8")
         except utils.web.Error:
-            irc.error("Error querying Last.FM for %s-%s." % (artist, track), Raise=True)
+            msg_string = "Error querying Last.FM for %s-%s." % (artist, track)
+            irc.error(sg_string.encode('utf-8'), Raise=True)
         self.log.debug("LastFM.getInfo: url %s", url)
 
         try:
@@ -208,7 +209,8 @@ class LastFM(callbacks.Plugin):
             playcount = data["userplaycount"]
             playcountT = data["playcount"]
         except KeyError:
-            self.log.debug("Can't find track info for %s-%s.", artist, track)
+            msg_string = "Can't find track info for %s-%s." % (artist, track)
+            self.log.debug(msg_string.encode('utf-8'))
             playcount = 1
             playcountT = 1
 
@@ -244,26 +246,27 @@ class LastFM(callbacks.Plugin):
             ddg = irc.getCallback("DDG")
             if ddg:
                 try:
-                    results = ddg.search_core('site:youtube.com "%s - %s"' % (artist, track),
-                                              channel_context=msg.args[0], max_results=1, show_snippet=False)
+                    search_string = 'site:youtube.com "%s - %s"' % (artist, track)
+                    results = ddg.search_core(search_string.encode('utf-8'), channel_context=msg.args[0], max_results=1, show_snippet=False)
 
 
                     if results:
                         public_url = format('%u', results[0][2])
                     else:
                         time.sleep(2)
-                        results = ddg.search_core('site:soundcloud.com "%s - %s"' % (artist, track),
-                                              channel_context=msg.args[0], max_results=1, show_snippet=False)
+                        search_string = 'site:soundcloud.com "%s - %s"' % (artist, track)
+                        results = ddg.search_core(search_string.encode('utf-8'), channel_context=msg.args[0], max_results=1, show_snippet=False)
                         if results:
                             public_url = format('%u', results[0][2])
                         else:
-                            log.info("No Soundcloud link found for %s - %s", artist, track) 
+                            msg_string = "No Soundcloud link found for %s - %s" % (artist, track)
+                            log.info(msg_string.encode('utf-8')) 
                     
                 except:
                     # If something breaks, log the error but don't cause the
                     # entire np request to fail.
-                    error_txt = ('LastFM: failed to get public link for track %s - %s' % (artist, track))
-                    log.exception(error_txt)        
+                    msg_string = 'LastFM: failed to get public link for track %s - %s' % (artist, track)
+                    log.exception(msg_string.encode('utf-8'))        
 
 
         nick_bold = ircutils.bold(nick[0]) + u'\u200B' + ircutils.bold(nick[1:])
