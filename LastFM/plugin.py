@@ -68,6 +68,7 @@ class LastFMDB():
             with open(filename, 'rb') as f:
                self.db = pickle.load(f)
         except Exception as e:
+            print Exception
             log.debug('LastFM: Unable to load database, creating '
                       'a new one: %s', e)
 
@@ -246,21 +247,26 @@ class LastFM(callbacks.Plugin):
             ddg = irc.getCallback("DDG")
             if ddg:
                 try:
-                    search_string = 'site:youtube.com "%s - %s"' % (artist, track)
-                    results = ddg.search_core(search_string.encode('utf-8'), channel_context=msg.args[0], max_results=1, show_snippet=False)
-
-
-                    if results:
-                        public_url = format('%u', results[0][2])
-                    else:
-                        time.sleep(2)
-                        search_string = 'site:soundcloud.com "%s - %s"' % (artist, track)
+                    #search_string = 'site:youtube.com "%s - %s"' % (artist, track)
+                    results = []
+                    for site in ["youtube.com", "soundcloud.com", "bandcamp.com"]:
+                        search_string = '+"%s" +"%s" SITE:%s' % (artist, track, site)
                         results = ddg.search_core(search_string.encode('utf-8'), channel_context=msg.args[0], max_results=1, show_snippet=False)
                         if results:
-                            public_url = format('%u', results[0][2])
-                        else:
-                            msg_string = "No Soundcloud link found for %s - %s" % (artist, track)
-                            log.info(msg_string.encode('utf-8')) 
+                            # Check that artist and track are in title of result
+                            if (artist in results[0][0]) and (track in results[0][0]):
+                                public_url = format('%u', results[0][2])
+                                break
+
+                    # else:
+                    #     time.sleep(2)
+                    #     search_string = 'site:soundcloud.com "%s - %s"' % (artist, track)
+                    #     results = ddg.search_core(search_string.encode('utf-8'), channel_context=msg.args[0], max_results=1, show_snippet=False)
+                    #     if results:
+                    #         public_url = format('%u', results[0][2])
+                    #     else:
+                    #         msg_string = "No Soundcloud link found for %s - %s" % (artist, track)
+                    #         log.info(msg_string.encode('utf-8')) 
                     
                 except:
                     # If something breaks, log the error but don't cause the
@@ -667,6 +673,42 @@ class LastFM(callbacks.Plugin):
         #irc.reply("%s and %s have %d artists in common, out of %s artists" % (nick1,nick2,commonArtists,totalArtists))
         irc.reply(outstr)
 
+    @wrap(["text"])
+    def bio(self, irc, msg, args, text):
+        """<artist>
+
+        Returns biography for the artist.
+        """
+
+        apiKey = self.registryValue("apiKey")
+        if not apiKey:
+            irc.error("The API Key is not set. Please set it via "
+                      "'config plugins.lastfm.apikey' and reload the plugin. "
+                      "You can sign up for an API Key using "
+                      "http://www.last.fm/api/account/create", Raise=True)
+
+        # see http://www.last.fm/api/show/artist.getSimilar
+        url = "%sapi_key=%s&method=artist.getinfo&artist=%s&format=json&autocorrect=1" % (self.APIURL, apiKey, text)
+        try:
+            f = utils.web.getUrl(url).decode("utf-8")
+        except utils.web.Error:
+            irc.error("Unknown artist %s." % artist, Raise=True)
+        self.log.debug("LastFM.bio: url %s", url)
+
+        try:
+            data = json.loads(f)["artist"]
+        except KeyError:
+            irc.error("Unknown artist %s." % artist, Raise=True)
+
+        bio = data["bio"]["summary"].replace("\n","").split("<a href")[0].strip()
+        artist = data["name"]
+        lead_text = "Bio for %s:" % artist
+
+        if len(bio) == 0:
+            irc.reply("No biography available for %s" % text)
+        else:
+            outstr = "%s %s" % (ircutils.bold(lead_text), bio)
+            irc.reply(outstr)
         
 
 
