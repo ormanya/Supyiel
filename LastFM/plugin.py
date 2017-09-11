@@ -589,9 +589,9 @@ class LastFM(callbacks.Plugin):
         #irc.reply("%s and %s have %d artists in common, out of %s artists" % (nick1,nick2,commonArtists,totalArtists))
         irc.reply("%s and %s are %3.1f%% similar" % (nick1,nick2,100*float(commonArtists)/float(totalArtists)))
                 
-    @wrap(["something", optional("something")])
+    @wrap([optional("something"), optional("something")])
     def topartists(self, irc, msg, args, user, period):
-        """<user> [<period>]
+        """[<user>] [<period>]
 
         Reports the top 10 artists for the user, over the specified period. Options for <period> are "overall | 7day | 1month | 3month | 6month | 12month".
         Default period is 1month.
@@ -605,7 +605,17 @@ class LastFM(callbacks.Plugin):
                       "You can sign up for an API Key using "
                       "http://www.last.fm/api/account/create", Raise=True)
 
-        if user != None:
+        periods = ["overall", "7day", "1month", "3month", "6month", "12month"]
+
+
+
+        if (user is None) or (user.replace("months","month") in periods):
+            # Clean up period input
+            
+            period = user.replace("months","month")
+            user = self.db.get(msg.prefix)
+            nick = msg.nick
+        else:
             nick = user
             try:
                 # To find last.fm id in plugin database
@@ -620,18 +630,22 @@ class LastFM(callbacks.Plugin):
             except:
                 irc.reply("%s is not registered with the bot" % user)
                 irc.error("Bot only supports top artist for registered users", Raise=True)
-        else:
-            user = self.db.get(msg.prefix)
-            nick = msg.nick
 
-        if period is None:
+        if period is not None:
+            # Clean up period input
+            period = period.replace("months","month")
+            if period not in ["overall", "7day", "1month", "3month", "6month", "12month"]:
+                irc.reply("%s is not a valid period" % period)
+                irc.error("Please select a period from 'overall | 7day | 1month | 3month | 6month | 12month'", Raise=True)
+            else:
+                period = period.lower()
+        else:
             period = "1month"
-        elif period not in ["overall", "7day", "1month", "3month", "6month", "12month"]:
-            irc.reply("%s is not a valid period" % period)
-            irc.error("Please select a period from 'overall | 7day | 1month | 3month | 6month | 12month'", Raise=True)
-        else:
-            period = period.lower()
 
+
+
+        print "User is %s" % user
+        print "Period is %s" % period
 
         # Get library information for user
         #artists = [[],[]]
