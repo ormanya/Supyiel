@@ -607,16 +607,15 @@ class LastFM(callbacks.Plugin):
 
         periods = ["overall", "7day", "1month", "3month", "6month", "12month"]
 
-
-
-        if (user is None) or (user.replace("months","month") in periods):
-            # Clean up period input
-            
-            period = user.replace("months","month")
+        if user is None:
+            user = self.db.get(msg.prefix)
+            nick = msg.nick
+        elif (user.replace("months","month") in periods) or (user.replace("days","day") in periods): 
+            period = user # will clean up below
             user = self.db.get(msg.prefix)
             nick = msg.nick
         else:
-            nick = user
+            nick = user                   
             try:
                 # To find last.fm id in plugin database
                 hostmask = irc.state.nickToHostmask(user)
@@ -634,9 +633,10 @@ class LastFM(callbacks.Plugin):
         if period is not None:
             # Clean up period input
             period = period.replace("months","month")
+            period = period.replace("days","day")
             if period not in ["overall", "7day", "1month", "3month", "6month", "12month"]:
                 irc.reply("%s is not a valid period" % period)
-                irc.error("Please select a period from 'overall | 7day | 1month | 3month | 6month | 12month'", Raise=True)
+                irc.error("Please select a period from '%s'" % ' | '.join(periods), Raise=True)
             else:
                 period = period.lower()
         else:
