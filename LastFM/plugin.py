@@ -68,7 +68,6 @@ class LastFMDB():
             with open(filename, 'rb') as f:
                self.db = pickle.load(f)
         except Exception as e:
-            print Exception
             log.debug('LastFM: Unable to load database, creating '
                       'a new one: %s', e)
 
@@ -164,7 +163,6 @@ class LastFM(callbacks.Plugin):
 
         # see http://www.lastfm.de/api/show/user.getrecenttracks
         url = "%sapi_key=%s&method=user.getrecenttracks&user=%s&format=json" % (self.APIURL, apiKey, urllib.quote(user))
-        print url
         try:
             f = utils.web.getUrl(url).decode("utf-8")
         except utils.web.Error:
@@ -197,7 +195,6 @@ class LastFM(callbacks.Plugin):
 
         # see http://www.last.fm/api/show/track.getInfo
         url = "%sapi_key=%s&method=track.getInfo&user=%s&artist=%s&track=%s&format=json" % (self.APIURL, apiKey, urllib.quote(user), urllib.quote(artist.encode('utf-8')), urllib.quote(track.encode('utf-8')))
-        print url
         try:
             f = utils.web.getUrl(url).decode("utf-8")
         except utils.web.Error:
@@ -641,11 +638,6 @@ class LastFM(callbacks.Plugin):
                 period = period.lower()
         else:
             period = "1month"
-
-
-
-        print "User is %s" % user
-        print "Period is %s" % period
 
         # Get library information for user
         #artists = [[],[]]
