@@ -320,7 +320,7 @@ class LastFM(callbacks.Plugin):
                 try:
                     data = json.loads(f)["recenttracks"]
                 except:
-                    pass
+                   break
 
                 user = data["@attr"]["user"]
                 tracks = data["track"]
