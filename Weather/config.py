@@ -33,12 +33,14 @@ conf.registerGlobalValue(Weather, 'astronomy',
 conf.registerGlobalValue(Weather, 'showPressure',
     registry.Boolean(False, ("""Determines whether pressure will be displayed by default.""")))
 conf.registerGlobalValue(Weather, 'showWind',
-    registry.Boolean(False, ("""Determines whether winde will be displayed by default.""")))
+    registry.Boolean(False, ("""Determines whether wind will be displayed by default.""")))
 conf.registerGlobalValue(Weather, 'showUpdated',
     registry.Boolean(False, ("""Determines whether the bot will show the data's "last updated" time by default.""")))
 conf.registerGlobalValue(Weather, 'lang',
     registry.String('EN', ("""Determines the language used by the plugin.""")))
 conf.registerChannelValue(Weather, 'disableColoredTemp',
-    registry.Boolean(False, """If True, this will disable coloring temperatures based on values."""))
+    registry.Boolean(False,( """If True, this will disable coloring temperatures based on values.""")))
+conf.registerChannelValue(Weather, 'ignoreUserPrefs',
+    registry.Boolean(False, ("""Ignore user specified preferneces for displaying information additional to core weather.""")))
 
 # vim:set shiftwidth=4 tabstop=4 expandtab textwidth=250:

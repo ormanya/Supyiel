@@ -385,8 +385,9 @@ class Weather(callbacks.Plugin):
 
         usersetting = self.db.getweather(nick.lower())
         if usersetting:
-            for (k, v) in usersetting.items():
-                args[k] = v
+            if not self.registryValue('ignoreUserPrefs', channel):
+                for (k, v) in usersetting.items():
+                    args[k] = v
             # Prefer the location given in the command, falling back to the one stored in the DB if not given.
             location = location or usersetting["location"]
             args['imperial'] = (not usersetting["metric"])
@@ -576,6 +577,12 @@ class Weather(callbacks.Plugin):
                          'Sunrise:': sunrise,
                          'Sunset:': sunset,
                          'Length of Day:': lengthofday}
+            if data['moon_phase']['ageOfMoon'] < 14:
+                astronomy['Moon phase:'] = "Waxing"
+            elif data['moon_phase']['ageOfMoon'] >= 15:
+                astronomy['Moon phase:'] = "Waning"
+            else:
+                astronomy['Moon phase'] = "Full"
             output = [format('%s %s', self._bold(k), v) for k, v in sorted(astronomy.items())]
             output = format("%s %s", self._bu('Astronomy:'), " | ".join(output))
             irc.reply(output)
