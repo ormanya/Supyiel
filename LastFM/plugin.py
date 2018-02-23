@@ -669,15 +669,16 @@ class LastFM(callbacks.Plugin):
 
         
         # prevent nick highlights
-        for artist in libraryList["topartists"]["artist"]:
-            #artists.append(artist["name"])
-            #artistsplays.append(artist["playcount"])
-            outstr = outstr + (" %s [%s]," % (ircutils.bold(artist["name"]), artist["playcount"]))
-        outstr = outstr[:-1]
-
-         
-        #irc.reply("%s and %s have %d artists in common, out of %s artists" % (nick1,nick2,commonArtists,totalArtists))
-        irc.reply(outstr)
+        try:
+            for artist in libraryList["topartists"]["artist"]:
+                #artists.append(artist["name"])
+                #artistsplays.append(artist["playcount"])
+                outstr = outstr + (" %s [%s]," % (ircutils.bold(artist["name"]), artist["playcount"]))
+            outstr = outstr[:-1]
+            #irc.reply("%s and %s have %d artists in common, out of %s artists" % (nick1,nick2,commonArtists,totalArtists))
+            irc.reply(outstr)
+        except:
+            irc.error("%s has not scrobbled any tracks yet" % user)
 
     @wrap(["text"])
     def bio(self, irc, msg, args, text):
