@@ -1,0 +1,2 @@
+# Supyiel
+Supybot plugins
