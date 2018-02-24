@@ -14,19 +14,29 @@ import supybot.callbacks as callbacks
 
 import json
 import random
+import os.path
+from shutil import copyfile
 
 class Insult(callbacks.Plugin):
 
     def __init__(self, irc):
-       self.__parent = super(Insult, self)
-       self.__parent.__init__(irc)
+        self.__parent = super(Insult, self)
+        self.__parent.__init__(irc)
 
-       # load the  database
-       self.insult_list = {}
-       #try:
-       with open(filename) as json_data:
-            self.insult_list = json.load(json_data)
-           #print insult_list
+        # load the  database
+        self.insult_list = {}
+        #try:
+        print os.path.exists(filename)
+        print os.getcwd()
+
+        if not os.path.exists(filename):
+            dir_path = os.path.dirname(os.path.realpath(__file__))
+            default_filename = os.path.join(os.path.dirname(os.path.realpath(__file__)), "default_insults.json")
+            copyfile(default_filename, filename)
+            print "Copied"
+        with open(filename) as json_data:
+                self.insult_list = json.load(json_data)
+            
        #except Exception as e:
        #    log.debug('Insults: Unable to load database: %s', e)
        #    print "bleh"
