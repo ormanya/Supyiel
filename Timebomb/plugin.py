@@ -125,10 +125,10 @@ class Timebomb(callbacks.Plugin):
                 schedule.removeEvent('%s_bomb' % self.channel)
 
         def defuse(self, irc, defuser):
-                self.irc.queueMsg(ircmsgs.privmsg(self.channel, '%s is saved!  The bomb is defused!' % self.victim))
-                self.active = False
-                self.thrown = False
-                schedule.removeEvent('%s_bomb' % self.channel)
+            self.irc.queueMsg(ircmsgs.privmsg(self.channel, '%s is saved!  The bomb is defused!' % self.victim))
+            self.active = False
+            self.thrown = False
+            schedule.removeEvent('%s_bomb' % self.channel)
 
         def detonate(self, irc):
             self.active = False
