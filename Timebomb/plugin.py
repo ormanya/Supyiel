@@ -135,7 +135,7 @@ class Timebomb(callbacks.Plugin):
             self.thrown = False
             if self.showCorrectWire:
                 self.irc.reply('Should\'ve gone for the %s wire!' % self.goodWire)
-            time.sleep(2)
+
             if self.showArt:
                 self.irc.sendMsg(ircmsgs.privmsg(self.channel, '\x031,1.....\x0315,1_.\x0314,1-^^---....,\x0315,1,-_\x031,1.......'))
                 self.irc.sendMsg(ircmsgs.privmsg(self.channel, '\x031,1.\x0315,1_--\x0314,1,.\';,`.,\';,.;;`;,.\x0315,1--_\x031,1...'))
@@ -149,20 +149,20 @@ class Timebomb(callbacks.Plugin):
                 self.irc.sendMsg(ircmsgs.privmsg(self.channel, '\x031,1.......\x034,1`-=\x037,1#$\x038,1%&\x037,1%$#\x034,1=-\'\x031,1........'))
             else:
                 self.irc.sendMsg(ircmsgs.privmsg(self.channel, 'KABOOM!'))
+
             ban_hostmask = str(self.victim) + '!*@*'
-            self.irc.sendMsg(ircmsgs.ban(self.channel, ban_hostmask, 'RU RO'))
-            self.irc.sendMsg(ircmsgs.kick(self.channel, self.victim, 'BOOM!'))
-            time.sleep(15)
-            self.irc.sendMsg(ircmsgs.unban(self.channel,ban_hostmask))
-            time.sleep(2)
+            self.irc.queueMsg(ircmsgs.ban(self.channel, ban_hostmask, 'RU RO'))
+            self.irc.queueMsg(ircmsgs.kick(self.channel, self.victim, 'BOOM!'))
+            
+            print time.time()
 
             def reinvite():
                 if not self.victim in irc.state.channels[self.channel].users:
-                    self.irc.sendMsg(ircmsgs.invite(self.victim, self.channel))
+                    self.irc.queueMsg(ircmsgs.unban(self.channel,ban_hostmask))
+                    self.irc.queueMsg(ircmsgs.invite(self.victim, self.channel))   
+
             if not self.responded:
-                reinvite()
-                
-#               schedule.addEvent(reinvite, time.time()+20)
+                schedule.addEvent(reinvite, time.time()+15)
                 
     
     def duck(self, irc, msg, args, channel):
