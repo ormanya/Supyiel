@@ -66,7 +66,7 @@ class Timebomb(callbacks.Plugin):
 
 
     class Bomb():
-        def __init__(self, irc, victim, wires, detonateTime, goodWire, channel, sender, showArt, showCorrectWire, debug):
+        def __init__(self, irc, victim, wires, detonateTime, goodWire, channel, sender, showArt, showCorrectWire, banOnDetonate, debug):
             self.victim = victim
             self.detonateTime = detonateTime
             self.wires = wires
@@ -77,6 +77,7 @@ class Timebomb(callbacks.Plugin):
             self.irc = irc
             self.showArt = showArt
             self.showCorrectWire = showCorrectWire
+            self.banOnDetonate = banOnDetonate
             self.debug = debug
             self.thrown = False
             self.responded = False
@@ -87,7 +88,11 @@ class Timebomb(callbacks.Plugin):
             def detonate():
                 self.detonate(irc)
             schedule.addEvent(detonate, time.time() + self.detonateTime, '%s_bomb' % self.channel)
-            s = 'stuffs a bomb down %s\'s pants.  The timer is set for %s seconds!  There are %s wires.  They are: %s.' % (self.victim, self.detonateTime, len(wires), utils.str.commaAndify(wires))
+            if len(wires) == 1:
+                wires_text = "is %s wire. It is" % len(wires)
+            else:
+                wires_text = "are %s wires. They are" % len(wires)
+            s = 'stuffs a bomb down %s\'s pants.  The timer is set for %s seconds!  There %s: %s.' % (self.victim, self.detonateTime, wires_text, utils.str.commaAndify(wires))
             self.irc.queueMsg(ircmsgs.action(self.channel, s))
             if self.victim == irc.nick:
                 time.sleep(1)
@@ -151,14 +156,16 @@ class Timebomb(callbacks.Plugin):
                 self.irc.sendMsg(ircmsgs.privmsg(self.channel, 'KABOOM!'))
 
             ban_hostmask = str(self.victim) + '!*@*'
-            self.irc.queueMsg(ircmsgs.ban(self.channel, ban_hostmask, 'RU RO'))
+            if self.banOnDetonate:
+                self.irc.queueMsg(ircmsgs.ban(self.channel, ban_hostmask, 'RU RO'))
             self.irc.queueMsg(ircmsgs.kick(self.channel, self.victim, 'BOOM!'))
             
             print time.time()
 
             def reinvite():
                 if not self.victim in irc.state.channels[self.channel].users:
-                    self.irc.queueMsg(ircmsgs.unban(self.channel,ban_hostmask))
+                    if self.banOnDetonate:
+                        self.irc.queueMsg(ircmsgs.unban(self.channel,ban_hostmask))
                     self.irc.queueMsg(ircmsgs.invite(self.victim, self.channel))   
 
             if not self.responded:
@@ -246,7 +253,7 @@ class Timebomb(callbacks.Plugin):
             colors = self.registryValue('colors')
         wires = self.rng.sample(colors, wireCount)
         goodWire = self.rng.choice(wires)
-        self.bombs[channel] = self.Bomb(irc, victim, wires, detonateTime, goodWire, channel, msg.nick, self.registryValue('showArt', msg.args[0]), self.registryValue('showCorrectWire', msg.args[0]), self.registryValue('debug'))
+        self.bombs[channel] = self.Bomb(irc, victim, wires, detonateTime, goodWire, channel, msg.nick, self.registryValue('showArt', msg.args[0]), self.registryValue('showCorrectWire', msg.args[0]), self.registryValue('banOnDetonate', msg.args[0]), self.registryValue('debug'))
         try:
             irc.noReply()
         except AttributeError:
@@ -290,7 +297,7 @@ class Timebomb(callbacks.Plugin):
         goodWire = self.rng.choice(wires)
         if self.registryValue('debug'):
             irc.reply('I\'m about to create a bomb in %s' % channel)
-        self.bombs[channel] = self.Bomb(irc, victim, wires, detonateTime, goodWire, channel, msg.nick, self.registryValue('showArt', msg.args[0]), self.registryValue('showCorrectWire', msg.args[0]), self.registryValue('debug'))
+        self.bombs[channel] = self.Bomb(irc, victim, wires, detonateTime, goodWire, channel, msg.nick, self.registryValue('showArt', msg.args[0]), self.registryValue('showCorrectWire', msg.args[0]), self.registryValue('banOnDetonate', msg.args[0]), self.registryValue('debug'))
         if self.registryValue('debug'):
             irc.reply('This message means that I got past the bomb creation line in the timebomb command')
     timebomb = wrap(timebomb, ['Channel', ('checkChannelCapability', 'timebombs'), 'somethingWithoutSpaces'])

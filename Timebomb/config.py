@@ -145,6 +145,10 @@ conf.registerChannelValue(Timebomb, 'showCorrectWire',
         registry.Boolean(False, """Determines whether the correct wire will be
             shown when a bomb detonates."""))
 
+conf.registerChannelValue(Timebomb, 'banOnDetonate',
+        registry.Boolean(False, """Determines whether the user is banned when 
+            a bomb detonates."""))
+
 conf.registerGlobalValue(Timebomb, 'debug',
         registry.Boolean(False, """Determines whether debugging info will be
             shown."""))
