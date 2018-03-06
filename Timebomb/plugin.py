@@ -92,7 +92,7 @@ class Timebomb(callbacks.Plugin):
                 wires_text = "is %s wire. It is" % len(wires)
             else:
                 wires_text = "are %s wires. They are" % len(wires)
-            s = 'stuffs a bomb down %s\'s pants.  The timer is set for %s seconds!  There %s: %s.' % (self.victim, self.detonateTime, wires_text, utils.str.commaAndify(wires))
+            s = 'stuffs a bomb down %s\'s pants.  The timer is set for %s seconds!  There %s %s.' % (self.victim, self.detonateTime, wires_text, utils.str.commaAndify(wires))
             self.irc.queueMsg(ircmsgs.action(self.channel, s))
             if self.victim == irc.nick:
                 time.sleep(1)
