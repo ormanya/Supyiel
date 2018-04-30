@@ -206,6 +206,17 @@ class LastFM(callbacks.Plugin):
             data = json.loads(f)["track"]
             playcount = data["userplaycount"]
             playcountT = data["playcount"]
+
+            # Get track tags
+            tags = data["toptags"]["tag"]
+            tag_list = ''
+            for tag in tags:
+                tag_list = tag_list + tag["name"] + ', '
+            if len(tag_list) > 0:
+                tag_list = tag_list[:-2]
+            else:
+                tag_list = 'No tags'
+
         except KeyError:
             msg_string = "Can't find track info for %s-%s." % (artist, track)
             self.log.debug(msg_string.encode('utf-8'))
@@ -277,12 +288,12 @@ class LastFM(callbacks.Plugin):
            trackdata["@attr"]["nowplaying"]
            irc.reply('%s is listening to %s by %s%s [%s/%s] %s' %
                       (nick_bold, ircutils.bold(track), ircutils.bold(artist), album, playcount, playcountT, public_url.strip('<>')))
+
+
         except:
             irc.reply('%s listened to %s by %s%s %s %s' %
                       (nick_bold, ircutils.bold(track), ircutils.bold(artist), album, time_passed, public_url.strip('<>')))
-#        s = '%s listened to %s by %s %s %s. %s' % (ircutils.bold(user), ircutils.bold(track),
-#            ircutils.bold(artist), album, time, public_url)
-#        irc.reply(utils.str.normalizeWhitespace(s))
+
 
     @wrap([optional("something")]) 
     def whatsplaying(self, irc, msg, args, extra):
@@ -341,16 +352,46 @@ class LastFM(callbacks.Plugin):
                     album = ""
                 year = strftime("%Y")
 
+               # see http://www.last.fm/api/show/track.getInfo
+                url = "%sapi_key=%s&method=track.getInfo&user=%s&artist=%s&track=%s&format=json" % (self.APIURL, apiKey, urllib.quote(user), urllib.quote(artist.encode('utf-8')), urllib.quote(track.encode('utf-8')))
+                try:
+                    f = utils.web.getUrl(url).decode("utf-8")
+                except utils.web.Error:
+                    msg_string = "Error querying Last.FM for %s-%s." % (artist, track)
+                    irc.error(sg_string.encode('utf-8'), Raise=True)
+                self.log.debug("LastFM.getInfo: url %s", url)
+
+                try:
+                    data = json.loads(f)["track"]
+                    playcount = data["userplaycount"]
+                    playcountT = data["playcount"]
+
+                    # Get track tags
+                    tags = data["toptags"]["tag"]
+                    tag_list = ''
+                    for tag in tags:
+                        tag_list = tag_list + tag["name"] + ', '
+                    if len(tag_list) > 0:
+                        tag_list = ' [%s]' % tag_list[:-2]
+                    else:
+                        tag_list = ' [No tags]'
+
+                except KeyError:
+                    msg_string = "Can't find track info for %s-%s." % (artist, track)
+                    self.log.debug(msg_string.encode('utf-8'))
+                    playcount = 1
+                    playcountT = 1
+
                 nick_bold = ircutils.bold(nick[0]) + u'\u200B' + ircutils.bold(nick[1:]) 
                 try:
                    trackdata["@attr"]["nowplaying"]
-                   irc.reply('%s is listening to %s by %s%s' % (nick_bold, ircutils.bold(track), ircutils.bold(artist), album))
+                   irc.reply('%s is listening to %s by %s%s' % (nick_bold, ircutils.bold(track), ircutils.bold(artist), tag_list))
                    listening = listening + 1
                 except:
                     last_play = datetime.now() - datetime.fromtimestamp(int(trackdata["date"]["uts"]))
                     # if last played less than 10 minutes ago
                     if int(last_play.seconds) < 600:
-                        irc.reply('%s is listening to %s by %s%s' % (nick_bold, ircutils.bold(track), ircutils.bold(artist), album))
+                        irc.reply('%s is listening to %s by %s%s' % (nick_bold, ircutils.bold(track), ircutils.bold(artist), tag_list))
                         listening = listening + 1
                     pass
 
