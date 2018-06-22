@@ -166,13 +166,16 @@ class LastFM(callbacks.Plugin):
         try:
             f = utils.web.getUrl(url).decode("utf-8")
         except utils.web.Error:
-            irc.error("Error querying Last.FM for %s." % user, Raise=True)
+            #irc.error("Error querying Last.FM for %s." % user, Raise=True)
+            irc.reply("Error querying Last.FM for {0}".format(unicode(user.decode('utf-8'))))
+            return
         self.log.debug("LastFM.nowPlaying: url %s", url)
 
         try:
             data = json.loads(f)["recenttracks"]
         except KeyError:
-            irc.error("Can't read recent tracks for %s." % user, Raise=True)
+            irc.reply("Can't find any recent tracks for {0}".format(unicode(user.decode('utf-8'))))
+            return
 
         user = data["@attr"]["user"]
         tracks = data["track"]
@@ -181,7 +184,9 @@ class LastFM(callbacks.Plugin):
         try:
             trackdata = tracks[0]
         except IndexError:
-            irc.error("%s doesn't seem to have listened to anything." % user, Raise=True)
+            #irc.error("%s doesn't seem to have listened to anything." % user, Raise=True)
+            irc.reply("{0} doesn't seem to have listened to anything.".format(unicode(user.decode('utf-8'))))
+            return
 
         artist = trackdata["artist"]["#text"].strip()  # Artist name
         track = trackdata["name"].strip()  # Track name
@@ -324,7 +329,9 @@ class LastFM(callbacks.Plugin):
                 try:
                     f = utils.web.getUrl(url).decode("utf-8")
                 except utils.web.Error:
-                    irc.error("Unknown user %s." % user, Raise=True)
+                    #irc.error("Unknown user %s." % user, Raise=True)
+                    irc.reply("Unknown user {0}.".format(unicode(user.decode('utf-8'))))
+                    return
                 self.log.debug("LastFM.nowPlaying: url %s", url)
 
 
@@ -427,13 +434,17 @@ class LastFM(callbacks.Plugin):
         try:
             f = utils.web.getUrl(url).decode("utf-8")
         except utils.web.Error:
-            irc.error("Unknown artist %s." % artist, Raise=True)
+            #irc.error("Unknown artist %s." % artist, Raise=True)
+            irc.reply("Unknown artist {0}.".format(unicode(artist.decode('utf-8'))))
+            return
         self.log.debug("LastFM.similarArtists: url %s", url)
 
         try:
             data = json.loads(f)["similarartists"]
         except KeyError:
-            irc.error("Unknown artist %s." % artist, Raise=True)
+            #irc.error("Unknown artist %s." % artist, Raise=True)
+            irc.reply("Unknown artist {0}.".format(unicode(artist.decode('utf-8'))))
+            return
 
         count = 0
         outstr = ""
@@ -484,12 +495,18 @@ class LastFM(callbacks.Plugin):
             user = (user or self.db.get(msg.prefix) or msg.nick)
 
         # Get profile information
-        url = "%sapi_key=%s&method=user.getInfo&user=%s&format=json" % (self.APIURL, apiKey, user)
+        try:
+            url = "%sapi_key=%s&method=user.getInfo&user=%s&format=json" % (self.APIURL, apiKey, user)
+        except:
+            irc.reply("Can't get profile for {0}.".format(unicode(user.decode('utf-8'))))
+            return
         self.log.debug("LastFM.profile: url %s", url)
         try:
             f = utils.web.getUrl(url).decode("utf-8")
         except utils.web.Error:
-            irc.error("Unknown LastFM user '%s'." % user, Raise=True)
+            #irc.error("Unknown LastFM user '%s'." % user, Raise=True)
+            irc.reply("Unknown LastFM user {0}.".format(unicode(user.decode('utf-8'))))
+            return
 
         data = json.loads(f)
         keys = ("realname", "age", "gender", "country", "playcount","url")
@@ -509,7 +526,9 @@ class LastFM(callbacks.Plugin):
         try:
             f = utils.web.getUrl(url).decode("utf-8")
         except utils.web.Error:
-            irc.error("Unknown LastFM user '%s'." % user, Raise=True) 
+            #irc.error("Unknown LastFM user '%s'." % user, Raise=True)
+            irc.reply("Unknown LastFM user {0}.".format(unicode(user.decode('utf-8'))))
+            return 
         libraryList = json.loads(f)
         profile["artistcount"] = ircutils.bold(libraryList["artists"]["@attr"]["total"])
 
@@ -521,7 +540,9 @@ class LastFM(callbacks.Plugin):
             s = datetime.fromtimestamp(timestamp).strftime(tformat)
         except:
             #s = "N/A"
-            irc.error("Unknown LastFM user '%s'." % user, Raise=True)
+            #irc.error("Unknown LastFM user '%s'." % user, Raise=True)
+            irc.reply("Unknown LastFM user {0}.".format(unicode(user.decode('utf-8'))))
+            return
         finally:
             profile["registered"] = ircutils.bold(s)
 
@@ -603,7 +624,9 @@ class LastFM(callbacks.Plugin):
                 try:
                     f = utils.web.getUrl(url).decode("utf-8")
                 except utils.web.Error:
-                    irc.error("Unknown LastFM user '%s'." % user, Raise=True) 
+                    #irc.error("Unknown LastFM user '%s'." % user, Raise=True)
+                    irc.reply("Unknown LastFM user {0}.".format(unicode(user.decode('utf-8'))))
+                    return 
                 libraryList = json.loads(f)
                 # Get size of data set
                 if page == 1:
@@ -705,7 +728,9 @@ class LastFM(callbacks.Plugin):
         try:
             f = utils.web.getUrl(url).decode("utf-8")
         except utils.web.Error:
-            irc.error("Unknown LastFM user '%s'." % user, Raise=True) 
+            #irc.error("Unknown LastFM user '%s'." % user, Raise=True) 
+            irc.reply("Unknown LastFM user {0}.".format(unicode(user.decode('utf-8'))))
+            return
         libraryList = json.loads(f)
 
         
@@ -719,7 +744,9 @@ class LastFM(callbacks.Plugin):
             #irc.reply("%s and %s have %d artists in common, out of %s artists" % (nick1,nick2,commonArtists,totalArtists))
             irc.reply(outstr)
         except:
-            irc.error("%s has not scrobbled any tracks yet" % user)
+            #irc.error("%s has not scrobbled any tracks yet" % user)
+            irc.reply("{0} has not scrobbled any tracks yet.".format(unicode(user.decode('utf-8'))))
+            return
 
     @wrap(["text"])
     def bio(self, irc, msg, args, text):
@@ -740,13 +767,17 @@ class LastFM(callbacks.Plugin):
         try:
             f = utils.web.getUrl(url).decode("utf-8")
         except utils.web.Error:
-            irc.error("Unknown artist %s." % artist, Raise=True)
+            #irc.error("Unknown artist %s." % artist, Raise=True)
+            irc.reply("Unknown artist {0}.".format(unicode(artist.decode('utf-8'))))
+            return
         self.log.debug("LastFM.bio: url %s", url)
 
         try:
             data = json.loads(f)["artist"]
         except KeyError:
-            irc.error("Unknown artist %s." % artist, Raise=True)
+            #irc.error("Unknown artist %s." % artist, Raise=True)
+            irc.reply("Unknown artist {0}.".format(unicode(artist.decode('utf-8'))))
+            return
 
         bio = data["bio"]["summary"].replace("\n","").split("<a href")[0].strip()
         artist = data["name"]
