@@ -111,6 +111,13 @@ class LastFMDB():
         else:
             return self.db.get(user)
 
+    def unset(self, prefix):
+        """Deletes a user from the database."""
+        try:
+            #user = self.db.get(prefix)
+            del self.db[prefix]
+        except KeyError:
+            log.warning("%s doesn't exist in db",prefix)
 
 class LastFM(callbacks.Plugin):
     threaded = True
@@ -433,6 +440,14 @@ class LastFM(callbacks.Plugin):
             irc.reply("{0} not a valid last.fm nick.".format(unicode(newId.decode('utf-8'))))
             return
 
+    @wrap([optional("something")])
+    def unset(self, irc, msg, args, user):
+        """<user>
+
+        Removes a user from the database.
+        """
+        self.db.unset(user)
+        irc.replySuccess()
 
     @wrap(["text"])
     def sa(self, irc, msg, args, text):
