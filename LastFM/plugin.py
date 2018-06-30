@@ -325,13 +325,13 @@ class LastFM(callbacks.Plugin):
             if user != None:
                 registered = registered + 1
                 # see http://www.lastfm.de/api/show/user.getrecenttracks
-                url = "%sapi_key=%s&method=user.getrecenttracks&user=%s&format=json" % (self.APIURL, apiKey, user)
                 try:
+                    url = "%sapi_key=%s&method=user.getrecenttracks&user=%s&format=json" % (self.APIURL, apiKey, unicode(user.decode('utf-8')))
                     f = utils.web.getUrl(url).decode("utf-8")
                 except utils.web.Error:
                     #irc.error("Unknown user %s." % user, Raise=True)
                     irc.reply("Unknown user {0}.".format(unicode(user.decode('utf-8'))))
-                    return
+                    continue
                 self.log.debug("LastFM.nowPlaying: url %s", url)
 
 
@@ -411,8 +411,28 @@ class LastFM(callbacks.Plugin):
         Sets the LastFM username for the caller and saves it in a database.
         """
 
-        self.db.set(msg.prefix, newId)
-        irc.replySuccess()
+        apiKey = self.registryValue("apiKey")
+        if not apiKey:
+            irc.error("The API Key is not set. Please set it via "
+                      "'config plugins.lastfm.apikey' and reload the plugin. "
+                      "You can sign up for an API Key using "
+                      "http://www.last.fm/api/account/create", Raise=True)
+
+        try:
+            # check that the last.fm nick is valid
+            url = "%sapi_key=%s&method=user.getInfo&user=%s&format=json" % (self.APIURL, apiKey, newId)
+            print url
+            f = utils.web.getUrl(url).decode("utf-8")
+            if 'error' in json.loads(f):
+                print "Ha!"
+                raise Exception('User not found.')
+            else:
+                self.db.set(msg.prefix, newId)
+                irc.replySuccess()
+        except:
+            irc.reply("{0} not a valid last.fm nick.".format(unicode(newId.decode('utf-8'))))
+            return
+
 
     @wrap(["text"])
     def sa(self, irc, msg, args, text):
@@ -509,16 +529,12 @@ class LastFM(callbacks.Plugin):
             return
 
         data = json.loads(f)
-        keys = ("realname", "age", "gender", "country", "playcount","url")
+        keys = ("realname", "age", "gender", "country", "playcount", "url")
         #profile = {"id": ircutils.bold(user)}
         profile = {"id": ircutils.bold(nick)}
         for tag in keys:
-            try:
-                s = data["user"][tag].strip() or "N/A"
-            except KeyError: # empty field
-                s = "N/A"
-            finally:
-                profile[tag] = ircutils.bold(s)
+            s = data["user"][tag]
+            profile[tag] = ircutils.bold(s)
 
         # Get library information
         url = "%sapi_key=%s&method=Library.getArtists&limit=1&user=%s&format=json" % (self.APIURL, apiKey, user)
