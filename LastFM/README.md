@@ -30,8 +30,8 @@ Showing profile information:
 ```
 All commands:
 - bio <artist> - Returns biography for the artist
-- compare <user> [<user2>] - Reports the percent similarity between two users, based on their top 100 artists over the last 12 months  
-- np [<user>]) -- Announces the track currently being played by <user>. If <user> is not given, defaults to the LastFM user configured for your current nick
+- compare \<user\> [\<user2\>] - Reports the percent similarity between two users, based on their top 100 artists over the last 12 months  
+- np [<user>] -- Announces the track currently being played by <user>. If <user> is not given, defaults to the LastFM user configured for your current nick
 - profile [<user>] - Prints the profile info for the specified LastFM user. If <user> is not given, defaults to the LastFM user configured for your current nick. 
 - sa <artist> - Lists other similar artists. 
 - topartists [<user>] [<period>] - Reports the top 10 artists for the user, over the specified period. Options for <period> are "overall | 7day | 1month | 3month | 6month | 12month". Default period is 1month. 
