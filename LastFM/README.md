@@ -20,11 +20,11 @@ After doing so, you must then configure your bot to use your key: `/msg <botname
 Showing now playing information:
 ```
 <@ormanya> .np RJ
-<@myBot> RJ listened to Apache by The Shadows [Back To Back] at 01:42 PM, October 10, 2015
+<@myBot> RJ is listening to Restless (Extended Mix) by New Order [Complete Music] [16/3652] https://www.youtube.com/watch?v=01TOWTBKSho
 ```
 
 Showing profile information:
 ```
 <@ormanya> .profile RJ
-<@myBot> RJ (realname: Richard Jones) registered on 03:50 AM, November 20, 2002; age: 0 / m; Country: United Kingdom; Tracks played: 114896
+<@myBot> RJ registered on 09:35 PM, July 27, 2006; Country: Canada; Artists played: 1659 Tracks played: 41207 URL: https://www.last.fm/user/RJ
 ```
