@@ -9,6 +9,7 @@ A Supybot/Limnoria plugin for LastFM, forked from [Glolol/Supyplugins](https://g
 - DB implementation to track nicks rather than hostmasks, for better support of networks that change hostmask with user class progression
 - added sa (similar artists), compare, and wp (what's playing) plugins
 - added non-printable character to nicks printed to channel, to avoid highlighting
+- added YouTube links to now playing responses
 
 ### Setup and Usage
 
@@ -18,12 +19,12 @@ After doing so, you must then configure your bot to use your key: `/msg <botname
 
 Showing now playing information:
 ```
-<@ormanyal> %np RJ
+<@ormanya> .np RJ
 <@myBot> RJ listened to Apache by The Shadows [Back To Back] at 01:42 PM, October 10, 2015
 ```
 
 Showing profile information:
 ```
-<@ormanya> %profile RJ
+<@ormanya> .profile RJ
 <@myBot> RJ (realname: Richard Jones) registered on 03:50 AM, November 20, 2002; age: 0 / m; Country: United Kingdom; Tracks played: 114896
 ```
