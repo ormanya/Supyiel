@@ -170,6 +170,7 @@ class LastFM(callbacks.Plugin):
 
         # see http://www.lastfm.de/api/show/user.getrecenttracks
         url = "%sapi_key=%s&method=user.getrecenttracks&user=%s&format=json" % (self.APIURL, apiKey, urllib.quote(user))
+        print url
         try:
             f = utils.web.getUrl(url).decode("utf-8")
         except utils.web.Error:
@@ -207,11 +208,12 @@ class LastFM(callbacks.Plugin):
 
         # see http://www.last.fm/api/show/track.getInfo
         url = "%sapi_key=%s&method=track.getInfo&user=%s&artist=%s&track=%s&format=json" % (self.APIURL, apiKey, urllib.quote(user), urllib.quote(artist.encode('utf-8')), urllib.quote(track.encode('utf-8')))
+        print url
         try:
             f = utils.web.getUrl(url).decode("utf-8")
         except utils.web.Error:
             msg_string = "Error querying Last.FM for %s-%s." % (artist, track)
-            irc.error(sg_string.encode('utf-8'), Raise=True)
+            irc.error(msg_string.encode('utf-8'), Raise=True)
         self.log.debug("LastFM.getInfo: url %s", url)
 
         try:
@@ -395,6 +397,7 @@ class LastFM(callbacks.Plugin):
                     self.log.debug(msg_string.encode('utf-8'))
                     playcount = 1
                     playcountT = 1
+                    tag_list = ' [No tags]'
 
                 nick_bold = ircutils.bold(nick[0]) + u'\u200B' + ircutils.bold(nick[1:]) 
                 try:
@@ -444,7 +447,7 @@ class LastFM(callbacks.Plugin):
     def unset(self, irc, msg, args, user):
         """<user>
 
-        Removes a user from the database.
+        Removes a user from the LastFM database.
         """
         self.db.unset(user)
         irc.replySuccess()
