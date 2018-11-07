@@ -160,8 +160,6 @@ class Timebomb(callbacks.Plugin):
                 self.irc.queueMsg(ircmsgs.ban(self.channel, ban_hostmask, 'RU RO'))
             self.irc.queueMsg(ircmsgs.kick(self.channel, self.victim, 'BOOM!'))
             
-            print time.time()
-
             def reinvite():
                 if not self.victim in irc.state.channels[self.channel].users:
                     if self.banOnDetonate:
