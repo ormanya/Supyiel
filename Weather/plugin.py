@@ -577,9 +577,9 @@ class Weather(callbacks.Plugin):
                          'Sunrise:': sunrise,
                          'Sunset:': sunset,
                          'Length of Day:': lengthofday}
-            if data['moon_phase']['ageOfMoon'] < 14:
+            if int(data['moon_phase']['ageOfMoon']) < 14:
                 astronomy['Moon phase:'] = "Waxing"
-            elif data['moon_phase']['ageOfMoon'] >= 15:
+            elif int(data['moon_phase']['ageOfMoon']) >= 15:
                 astronomy['Moon phase:'] = "Waning"
             else:
                 astronomy['Moon phase'] = "Full"

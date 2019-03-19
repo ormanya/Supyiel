@@ -216,11 +216,11 @@ class Timebomb(callbacks.Plugin):
         if self.registryValue('bombActiveUsers', msg.args[0]):
             if len(nicks) == 0:
                 nicks = list(irc.state.channels[channel].users)
-                items = self.talktimes.iteritems()
+                items = iter(self.talktimes.items())
                 nicks = []
                 for i in range(0, len(self.talktimes)):
                     try:
-                        item = items.next()
+                        item = next(items)
                         if time.time() - item[1] < self.registryValue('idleTime', msg.args[0])*60 and item[0] in irc.state.channels[channel].users:
                             nicks.append(item[0])
                     except StopIteration:
@@ -263,6 +263,7 @@ class Timebomb(callbacks.Plugin):
         """<nick>
 
         For bombing people!"""
+        victim = victim.lower()
         channel = ircutils.toLower(channel)
         if not self.registryValue('allowBombs', msg.args[0]):
             irc.reply('Timebombs aren\'t allowed in this channel.  Set plugins.Timebomb.allowBombs to true if you want them.')
@@ -273,13 +274,12 @@ class Timebomb(callbacks.Plugin):
                 return
         except KeyError:
             pass
-        if victim.lower() == irc.nick.lower() and not self.registryValue('allowSelfBombs', msg.args[0]):
+        if victim == irc.nick.lower() and not self.registryValue('allowSelfBombs', msg.args[0]):
             irc.reply('You really expect me to bomb myself?  Stuffing explosives into my own pants isn\'t exactly my idea of fun.')
             return
-        victim = string.lower(victim)
         found = False
         for nick in list(irc.state.channels[channel].users):
-            if victim == string.lower(nick):
+            if victim == nick.lower():
                 victim = nick
                 found = True
         if not found:
@@ -330,7 +330,7 @@ class Timebomb(callbacks.Plugin):
         except KeyError:
             if self.registryValue('debug'):
                 irc.reply('I tried to detonate a bomb in "%s"' % channel)
-                irc.reply('List of bombs: %s' % self.bombs.keys())
+                irc.reply('List of bombs: %s' % list(self.bombs.keys()))
         irc.noReply()
     detonate = wrap(detonate, [('checkChannelCapability', 'op')])
 
