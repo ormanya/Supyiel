@@ -50,6 +50,8 @@ import pickle
 import urllib.request, urllib.parse, urllib.error
 import re
 
+import threading
+
 class LastFMDB():
     """
     Holds the database LastFM IDs of all known LastFM IDs.
@@ -314,6 +316,93 @@ class LastFM(callbacks.Plugin):
         """
         Announces the track currrently being played by all users in the channel.
         """
+        create_lock = threading.Lock()
+        registered = 0
+        listening = 0
+
+        def outputUser(self, irc, apiURL, apiKey, nick):
+            nonlocal registered
+            nonlocal listening
+
+            hostmask = irc.state.nickToHostmask(nick)
+            user = self.db.get(hostmask)              
+
+            if user != None:
+                with create_lock:
+                    registered += 1
+
+                # see http://www.lastfm.de/api/show/user.getrecenttracks
+                try:
+                    url = "%sapi_key=%s&method=user.getrecenttracks&user=%s&format=json" % (apiURL, apiKey, str(user))
+                    f = utils.web.getUrl(url).decode("utf-8")
+                except utils.web.Error:
+                    irc.reply("Unknown user {0}.".format(str(user)))
+  
+                self.log.debug("LastFM.nowPlaying: url %s", url)
+
+                try:
+                    data = json.loads(f)["recenttracks"]
+                except:
+                   self.log.debug("Cannot find any recent tracks for {0}".format(str(user)))
+
+                user = data["@attr"]["user"]
+                tracks = data["track"]
+
+                # Work with only the first track.
+                try:
+                    trackdata = tracks[0]
+                except:
+                    pass
+
+                artist = trackdata["artist"]["#text"].strip()  # Artist name
+                track = trackdata["name"].strip()  # Track name
+                nick_bold = ircutils.bold(nick[0]) + '\u200B' + ircutils.bold(nick[1:]) 
+              # Album name (may or may not be present)
+                album = trackdata["album"]["#text"].strip()
+                if album:
+                    album = " [%s]" % album
+                else:
+                    album = ""
+                year = strftime("%Y")
+
+               # see http://www.last.fm/api/show/track.getInfo
+                url = "%sapi_key=%s&method=track.getInfo&user=%s&artist=%s&track=%s&format=json" % (apiURL, apiKey, urllib.parse.quote(user), urllib.parse.quote(artist.encode('utf-8')), urllib.parse.quote(track.encode('utf-8')))
+                try:
+                    f = utils.web.getUrl(url).decode("utf-8")
+                except utils.web.Error:
+                    msg_string = "Error querying Last.FM for %s-%s." % (artist, track)
+                    irc.error(sg_string.encode('utf-8'), Raise=True)
+
+                try:
+                    data = json.loads(f)["track"]
+
+                    # Get track tags
+                    tags = data["toptags"]["tag"]
+                    tag_list = ''
+                    for tag in tags:
+                        tag_list = tag_list + tag["name"] + ', '
+                    if len(tag_list) > 0:
+                        tag_list = ' [%s]' % tag_list[:-2]
+                    else:
+                        tag_list = ' [No tags]'
+
+                except KeyError:
+                    tag_list = ' [No tags]'
+                    pass
+
+                try:
+                    trackdata["@attr"]["nowplaying"]
+                    irc.reply('%s is listening to %s by %s%s' % (nick_bold, ircutils.bold(track), ircutils.bold(artist), tag_list))
+                    with create_lock:
+                        listening += 1
+
+                except:
+                    last_play = datetime.now() - datetime.fromtimestamp(int(trackdata["date"]["uts"]))
+                    # if last played less than 10 minutes ago
+                    if int(last_play.seconds) < 600:
+                        irc.reply('%s is listening to %s by %s%s' % (nick_bold, ircutils.bold(track), ircutils.bold(artist), tag_list))
+                        with create_lock:
+                            listening += 1
 
         channel = msg.args[0]
         try:
@@ -330,93 +419,16 @@ class LastFM(callbacks.Plugin):
                       "You can sign up for an API Key using "
                       "http://www.last.fm/api/account/create", Raise=True)
 
-        registered = 0
-        listening = 0
-        for nick in nicks:                      
-            hostmask = irc.state.nickToHostmask(nick)
-            user = self.db.get(hostmask)              
+        threads = []
+        for nick in nicks:  
+            process = threading.Thread(target=outputUser, args=(self, irc, self.APIURL, apiKey, nick,))
+            threads.append(process)
 
-            if user != None:
-                registered = registered + 1
-                # see http://www.lastfm.de/api/show/user.getrecenttracks
-                try:
-                    url = "%sapi_key=%s&method=user.getrecenttracks&user=%s&format=json" % (self.APIURL, apiKey, str(user))
-                    f = utils.web.getUrl(url).decode("utf-8")
-                except utils.web.Error:
-                    #irc.error("Unknown user %s." % user, Raise=True)
-                    irc.reply("Unknown user {0}.".format(str(user)))
-                    continue
-                self.log.debug("LastFM.nowPlaying: url %s", url)
+        for process in threads:
+            process.start()
 
-
-                try:
-                    data = json.loads(f)["recenttracks"]
-                except:
-                   break
-
-                user = data["@attr"]["user"]
-                tracks = data["track"]
-
-                # Work with only the first track.
-                try:
-                    trackdata = tracks[0]
-                except:
-                    pass
-
-                artist = trackdata["artist"]["#text"].strip()  # Artist name
-                track = trackdata["name"].strip()  # Track name
-                # Album name (may or may not be present)
-                album = trackdata["album"]["#text"].strip()
-                if album:
-                    album = " [%s]" % album
-                else:
-                    album = ""
-                year = strftime("%Y")
-
-               # see http://www.last.fm/api/show/track.getInfo
-                url = "%sapi_key=%s&method=track.getInfo&user=%s&artist=%s&track=%s&format=json" % (self.APIURL, apiKey, urllib.parse.quote(user), urllib.parse.quote(artist.encode('utf-8')), urllib.parse.quote(track.encode('utf-8')))
-                try:
-                    f = utils.web.getUrl(url).decode("utf-8")
-                except utils.web.Error:
-                    msg_string = "Error querying Last.FM for %s-%s." % (artist, track)
-                    irc.error(sg_string.encode('utf-8'), Raise=True)
-                self.log.debug("LastFM.getInfo: url %s", url)
-
-                try:
-                    data = json.loads(f)["track"]
-                    playcount = data["userplaycount"]
-                    playcountT = data["playcount"]
-
-                    # Get track tags
-                    tags = data["toptags"]["tag"]
-                    tag_list = ''
-                    for tag in tags:
-                        tag_list = tag_list + tag["name"] + ', '
-                    if len(tag_list) > 0:
-                        tag_list = ' [%s]' % tag_list[:-2]
-                    else:
-                        tag_list = ' [No tags]'
-
-                except KeyError:
-                    msg_string = "Can't find track info for %s-%s." % (artist, track)
-                    print(msg_string)
-                    self.log.debug(msg_string)
-                    playcount = 1
-                    playcountT = 1
-                    tag_list = ' [No tags]'
-
-                nick_bold = ircutils.bold(nick[0]) + '\u200B' + ircutils.bold(nick[1:]) 
-                try:
-                   trackdata["@attr"]["nowplaying"]
-                   irc.reply('%s is listening to %s by %s%s' % (nick_bold, ircutils.bold(track), ircutils.bold(artist), tag_list))
-                   listening = listening + 1
-                except:
-                    last_play = datetime.now() - datetime.fromtimestamp(int(trackdata["date"]["uts"]))
-                    # if last played less than 10 minutes ago
-                    if int(last_play.seconds) < 600:
-                        irc.reply('%s is listening to %s by %s%s' % (nick_bold, ircutils.bold(track), ircutils.bold(artist), tag_list))
-                        listening = listening + 1
-                    pass
+        for process in threads:
+            result = process.join() 
 
         irc.reply("%d out of %d registered users are listening to music" % (listening, registered))
 
