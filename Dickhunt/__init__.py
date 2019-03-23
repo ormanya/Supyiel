@@ -49,7 +49,7 @@ __contributors__ = {}
 # This is a url where the most recent plugin package can be downloaded.
 __url__ = 'https://github.com/veggiematts/supybot-duckhunt' 
 
-rom . import config
+from . import config
 from . import plugin
 from imp import reload
 

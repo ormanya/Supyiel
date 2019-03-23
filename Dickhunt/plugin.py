@@ -102,7 +102,7 @@ class dickHunt(callbacks.Plugin):
 		"""
 		Inserts non-printing character in nick to prevent highlights
 		"""
-		return nick[0] + '\\u200B' + nick[1:]
+		return nick[0] + '\u200B' + nick[1:]
 
 	def irc_color(self, s):
 		"""
