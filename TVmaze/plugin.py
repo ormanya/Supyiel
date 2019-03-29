@@ -29,11 +29,11 @@ def fetch(show=False):
         params_dict = {'country': 'US'}
         url_endpoint = 'http://api.tvmaze.com/schedule'
     else:
-        params_dict = {'q': show, 'embed': 'previousepisode', 'embed': 'nextepisode'}
+        params_dict = {'q': show, 'embed[]': ['nextepisode', 'previousepisode']}
         url_endpoint = 'http://api.tvmaze.com/singlesearch/shows' 
 
     try:
-        resp = requests.get(url_endpoint,params=params_dict)
+        resp = requests.get(url_endpoint, params_dict)
         if resp.text:
             return resp.json()
         else:
@@ -125,7 +125,7 @@ class tvmaze(callbacks.Plugin):
             else:
                 show_state = ircutils.mircColor(show['status'],'green').upper()
 
-            if ( '_embedded' in show and 'previousepisode' in show['_embedded']):
+            if ('_embedded' in show and 'previousepisode' in show['_embedded']):
                 airtime = parse(show['_embedded']['previousepisode']['airstamp'])
                 timedelta = datetime.datetime.now(tzlocal()) - airtime
                 relative_time = format_timedelta(timedelta,
@@ -144,7 +144,6 @@ class tvmaze(callbacks.Plugin):
                 airtime = parse(show['_embedded']['nextepisode']['airstamp'])
                 timedelta = datetime.datetime.now(tzlocal()) - airtime
                 relative_time = format_timedelta(timedelta, granularity='minutes')
-
                 next_episode = format('[%s] %s on %s (%s)',
                         ircutils.bold(str(show['_embedded']['nextepisode']['season'])
                             + 'x' +
