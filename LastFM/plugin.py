@@ -233,9 +233,9 @@ class LastFM(callbacks.Plugin):
             else:
                 tag_list = 'No tags'
 
-        except KeyError:
-            msg_string = "Can't find track info for %s-%s." % (artist, track)
-            self.log.debug(msg_string.encode('utf-8'))
+        except:
+            print(artist)
+            print(track)
             playcount = 1
             playcountT = 1
 
