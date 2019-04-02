@@ -56,13 +56,13 @@ def fetch(show=False):
                     id = False
 
                     try: # attributes can be missing so need try statement
-                        if modifier == show2['show']['premiered'][:4]:
+                        if modifier == show2['show']['premiered'][0:4]:
                             id=show2['show']['id']
                     except:
                         continue
 
                     try:
-                        if modifier.upper() in show2['show']['network']['country']['code'].upper():
+                        if (not id) and (modifier.upper() in show2['show']['network']['country']['code'].upper()):
                             id=show2['show']['id']
                     except:
                         continue
