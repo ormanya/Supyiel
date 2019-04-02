@@ -1109,7 +1109,7 @@ class dickHunt(callbacks.Plugin):
 				out_dict = sorted(iter(list(self.scores.get(currentChannel).items())), key=lambda k_v4:(k_v4[1],k_v4[0]), reverse=True)
 				for i, (nick, score) in enumerate(out_dict):
 					out_dict[i] = (self.hl_protect(nick), score)
-				irc.sendMsg(ircmsgs.privmsg(currentChannel, repr(out_dict).decode('raw_unicode_escape').replace("u'", "'")))
+				irc.sendMsg(ircmsgs.privmsg(currentChannel, repr(out_dict)))
 
 
 			# Getting channel best time (to see if the best time of this hunt is better)
