@@ -171,9 +171,10 @@ class tvmaze(callbacks.Plugin):
                     irc.reply(format('%s has not previously run any episodes', show_title))
             else:
                 if "Ended" in show['status']:
-                    irc.reply(format('%s %s %s: %s %s', show_title, show_state, ircutils.underline('Previous Episode'), last_episode, show['url']))
+                    irc.reply(format('%s %s %s: %s %s', show_title, show_state, 'Previous', last_episode, show['url']))
                 else:
-                    irc.reply(format('%s %s %s: %s %s: %s %s', show_title, show_state, ircutils.underline('Next Episode'), next_episode, ircutils.underline('Previous Episode'), last_episode, show['url']))
+                    irc.reply(format('%s %s %s: %s %s: %s %s  %s', 
+                        show_title, show_state, 'Next', next_episode, 'Previous', last_episode, show['url'], show['officialSite']))
 
         else:
             irc.reply(format('No show found named "%s"', ircutils.bold(tvshow)))
@@ -183,26 +184,27 @@ class tvmaze(callbacks.Plugin):
                 show_network = format('%s',
                     ircutils.bold(show['network']['name']))
 
-                show_schedule = format('%s: %s @ %s',
-                    ircutils.underline('Schedule'),
+                show_schedule = format('%s @ %s',
                     ircutils.bold(', '.join(show['schedule']['days'])),
                     ircutils.bold(show['schedule']['time']))
             else:
                 show_network = format('%s',
                     ircutils.bold(show['webChannel']['name']))
 
-                show_schedule = format('%s: %s',
-                    ircutils.underline('Premiered'),
-                    ircutils.bold(show['premiered']))
+                show_schedule = format('%s on %s.',
+                    'Premiered',
+                    show['premiered'])
 
-            show_genre = format('%s: %s/%s',
-                    ircutils.underline('Genre'),
-                    ircutils.bold(show['type']),
+            show_genre = format('%s/%s',
+                    (show['type']),
                     '/'.join(show['genres']))
 
+            show_language = format('%s',
+                    (show['language']))
 
-            irc.reply(format('%s on %s. %s', show_schedule, show_network,
-                show_genre))
+
+            irc.reply(format('%s on %s. %s. %s.', show_schedule, show_network,
+                show_genre, show_language))
 
 
     tv = wrap(tv, [getopts({'d': '', 'detail': '', 'rip': '', 'next': '', 'last': ''}), 'text'])
