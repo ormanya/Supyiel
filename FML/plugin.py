@@ -100,8 +100,9 @@ class FML(callbacks.Plugin):
                 irc.error(str(e), Raise=True)
 
             tree = html.fromstring(page.content)
-            s = tree.xpath('//*[@id="content"]/div/div[1]/div/article[1]/div/div/div[2]/p/a/text()')
-            s = s[0][1:-1]
+            s = tree.xpath('//*[@id="content"]/div/div[1]/div[1]/article[1]/div[1]/div[2]/a/text()')
+            s = s[0].replace('\n','')
+            print(s)
             irc.reply(s)
 
     fml = wrap(fml, [additional('positiveInt')])
