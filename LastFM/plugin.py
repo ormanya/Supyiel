@@ -1,4 +1,4 @@
-###
+##
 # Copyright (c) 2006, Ilya Kuznetsov
 # Copyright (c) 2008,2012 Kevin Funk
 # Copyright (c) 2014-2017 James Lu <james2overdrivenetworks.com>
@@ -336,7 +336,8 @@ class LastFM(callbacks.Plugin):
                     url = "%sapi_key=%s&method=user.getrecenttracks&user=%s&format=json" % (apiURL, apiKey, str(user))
                     f = utils.web.getUrl(url).decode("utf-8")
                 except utils.web.Error:
-                    irc.reply("Unknown user {0}.".format(str(user)))
+                    self.log.debug("Unknown user {0}.".format(str(user)))
+                    #irc.reply("Unknown user {0}.".format(str(user)))
   
                 self.log.debug("LastFM.nowPlaying: url %s", url)
 
