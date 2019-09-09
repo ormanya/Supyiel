@@ -97,7 +97,7 @@ class DuckHunt(callbacks.Plugin):
         """
         Inserts non-printing character in nick to prevent highlights
         """
-        return nick[0] + u'\u200B' + nick[1:]
+        return nick[0] + '\u200B' + nick[1:]
 
     def _calc_scores(self, channel):
         """
@@ -643,7 +643,7 @@ class DuckHunt(callbacks.Plugin):
                     if self.channelweek[channel][week].get(day):
                     # Getting all scores, to get the winner of the week
                         msgstring = ''
-                        scores = sorted(iter(self.channelweek[channel][week][day].items()), key=lambda k_v2:(k_v2[1],k_v2[0]), reverse=True)
+                        scores = sorted(iter(list(self.channelweek[channel][week][day].items())), key=lambda k_v2:(k_v2[1],k_v2[0]), reverse=True)
                         for item in scores:
                             msgstring += self.hl_protect(item[0]) + " "+ str(item[1]) + " | "
 
@@ -687,7 +687,7 @@ class DuckHunt(callbacks.Plugin):
                         for i in range(1,7):
                             if self.channelweek[channel][week].get(i):
                                 # Getting winner of the day
-                                winnernick, winnerscore = max(iter(self.channelweek[channel][week][i].items()), key=lambda k_v:(k_v[1],k_v[0]))
+                                winnernick, winnerscore = max(iter(list(self.channelweek[channel][week][i].items())), key=lambda k_v:(k_v[1],k_v[0]))
                                 msgstring += self.dayname[i - 1] + ": " + self.hl_protect(winnernick) + " (" + str(winnerscore) + ") | "
 
                                 # Getting all scores, to get the winner of the week
@@ -701,7 +701,7 @@ class DuckHunt(callbacks.Plugin):
                         if msgstring != '':
                             irc.reply("Scores for week " + str(week) + ": " + msgstring)
                             # Who's the winner at this point?
-                            winnernick, winnerscore = max(iter(weekscores.items()), key=lambda k_v1:(k_v1[1],k_v1[0]))
+                            winnernick, winnerscore = max(iter(list(weekscores.items())), key=lambda k_v1:(k_v1[1],k_v1[0]))
                             # Avoid highlight winners
                             irc.reply("Leader: %s with %i points." % (self.hl_protect(winnernick), winnerscore)) 
 
@@ -756,7 +756,7 @@ class DuckHunt(callbacks.Plugin):
                 listsize = size
 
             # Sort the scores (reversed: the higher the better)
-            scores = sorted(iter(self.channelscores[channel].items()), key=lambda k_v9:(k_v9[1],k_v9[0]), reverse=True)
+            scores = sorted(iter(list(self.channelscores[channel].items())), key=lambda k_v9:(k_v9[1],k_v9[0]), reverse=True)
             del scores[listsize:] 
 
             msgstring = ""
@@ -820,7 +820,7 @@ class DuckHunt(callbacks.Plugin):
                 listsize = size
 
             # Sort the times (not reversed: the lower the better)
-            times = sorted(iter(self.channeltimes[channel].items()), key=lambda k_v10:(k_v10[1],k_v10[0]), reverse=False)
+            times = sorted(iter(list(self.channeltimes[channel].items())), key=lambda k_v10:(k_v10[1],k_v10[0]), reverse=False)
             del times[listsize:] 
 
             msgstring = ""
@@ -833,7 +833,7 @@ class DuckHunt(callbacks.Plugin):
                 irc.reply("There aren't any best times for this channel yet.")
 
 
-            times = sorted(iter(self.channelworsttimes[channel].items()), key=lambda k_v11:(k_v11[1],k_v11[0]), reverse=True)
+            times = sorted(iter(list(self.channelworsttimes[channel].items())), key=lambda k_v11:(k_v11[1],k_v11[0]), reverse=True)
             del times[listsize:] 
 
             msgstring = ""
@@ -978,10 +978,6 @@ class DuckHunt(callbacks.Plugin):
                     # Base message
                     message = 'There was no duck!'
 
-                    # Adding additional message if kick
-                    if self.registryValue('kickMode', currentChannel) and irc.nick in irc.state.channels[currentChannel].ops:
-                        message += ' You just shot yourself!'
-
                     # Adding nick and score
                     message += " %s: %i" % (msg.nick, self.scores[currentChannel][msg.nick])
 
@@ -992,7 +988,8 @@ class DuckHunt(callbacks.Plugin):
 
                     # If kickMode is enabled for this channel, and the bot have op capability, let's kick!
                     if self.registryValue('kickMode', currentChannel) and irc.nick in irc.state.channels[currentChannel].ops:
-                        irc.queueMsg(ircmsgs.kick(currentChannel, msg.nick, message))
+                        irc.reply(message)
+                        irc.queueMsg(ircmsgs.kick(currentChannel, msg.nick, 'You just shot yourself!'))
                     else:
                         # Else, just say it
                         irc.reply(message)
@@ -1044,7 +1041,7 @@ class DuckHunt(callbacks.Plugin):
         if (self.scores.get(currentChannel)):
 
             # Getting winner
-            winnernick, winnerscore = max(iter(self.scores.get(currentChannel).items()), key=lambda k_v12:(k_v12[1],k_v12[0]))
+            winnernick, winnerscore = max(iter(list(self.scores.get(currentChannel).items())), key=lambda k_v12:(k_v12[1],k_v12[0]))
             if self.registryValue('ducks', currentChannel):
                 maxShoots = self.registryValue('ducks', currentChannel)
             else:
@@ -1057,10 +1054,10 @@ class DuckHunt(callbacks.Plugin):
                 self.scores[currentChannel][winnernick] += self.perfectbonus
             else:
                 # Showing scores
-                out_dict = sorted(self.scores.get(currentChannel).iteritems(), key=lambda (k,v):(v,k), reverse=True)
+                out_dict = sorted(iter(list(self.scores.get(currentChannel).items())), key=lambda k_v4:(k_v4[1],k_v4[0]), reverse=True)
                 for i, (nick, score) in enumerate(out_dict):
                     out_dict[i] = (self.hl_protect(nick), score)
-                irc.sendMsg(ircmsgs.privmsg(currentChannel, repr(out_dict).decode('raw_unicode_escape').replace("u'", "'")))
+                irc.sendMsg(ircmsgs.privmsg(currentChannel, repr(out_dict)))
 
 
 
@@ -1068,12 +1065,12 @@ class DuckHunt(callbacks.Plugin):
             channelbestnick = None
             channelbesttime = None
             if self.channeltimes.get(currentChannel):
-                channelbestnick, channelbesttime = min(iter(self.channeltimes.get(currentChannel).items()), key=lambda k_v5:(k_v5[1],k_v5[0]))
+                channelbestnick, channelbesttime = min(iter(list(self.channeltimes.get(currentChannel).items())), key=lambda k_v5:(k_v5[1],k_v5[0]))
 
             # Showing best time
             recordmsg = ''
             if (self.toptimes.get(currentChannel)):
-                key,value = min(iter(self.toptimes.get(currentChannel).items()), key=lambda k_v6:(k_v6[1],k_v6[0]))
+                key,value = min(iter(list(self.toptimes.get(currentChannel).items())), key=lambda k_v6:(k_v6[1],k_v6[0]))
             if (channelbesttime and value < channelbesttime):
                 recordmsg = '. This is the new record for this channel! (previous record was held by ' + self.hl_protect(channelbestnick) + ' with ' + str(round(channelbesttime,2)) +  ' seconds)'
             else:
@@ -1089,13 +1086,13 @@ class DuckHunt(callbacks.Plugin):
             channelworstnick = None
             channelworsttime = None
             if self.channelworsttimes.get(currentChannel):
-                channelworstnick, channelworsttime = max(iter(self.channelworsttimes.get(currentChannel).items()), key=lambda k_v7:(k_v7[1],k_v7[0]))
+                channelworstnick, channelworsttime = max(iter(list(self.channelworsttimes.get(currentChannel).items())), key=lambda k_v7:(k_v7[1],k_v7[0]))
 
 
             # Showing worst time
             recordmsg = ''
             if (self.worsttimes.get(currentChannel)):
-                key,value = max(iter(self.worsttimes.get(currentChannel).items()), key=lambda k_v8:(k_v8[1],k_v8[0]))
+                key,value = max(iter(list(self.worsttimes.get(currentChannel).items())), key=lambda k_v8:(k_v8[1],k_v8[0]))
             if (channelworsttime and value > channelworsttime):
                 recordmsg = '. This is the new longest time for this channel! (previous longest time was held by ' + self.hl_protect(channelworstnick) + ' with ' + str(round(channelworsttime,2)) +  ' seconds)'
             else:
@@ -1132,7 +1129,7 @@ class DuckHunt(callbacks.Plugin):
                                 except:
                                     weekscores[player] = self.channelweek[currentChannel][self.woy][i][player]
 
-                    winnernick, winnerscore = max(iter(weekscores.items()), key=lambda k_v3:(k_v3[1],k_v3[0]))
+                    winnernick, winnerscore = max(iter(list(weekscores.items())), key=lambda k_v3:(k_v3[1],k_v3[0]))
                     if (winnernick != self.leader[currentChannel]):
                         if self.leader[currentChannel] != None:
                             irc.sendMsg(ircmsgs.privmsg(currentChannel, "%s took the lead for the week over %s with %i points." % (self.hl_protect(winnernick), self.leader[currentChannel], winnerscore)))

@@ -1,5 +1,5 @@
 ###
-# Copyright (c) 2012-2014, spline
+# Copyright (c) 2011, SpiderDave
 # All rights reserved.
 #
 #
@@ -18,22 +18,20 @@ import supybot.world as world
 __version__ = ""
 
 # XXX Replace this with an appropriate author or supybot.Author instance.
-__author__ = 'reticulatingspline'
+__author__ = 'SpiderDave'
 
 # This is a dictionary mapping supybot.Author instances to lists of
 # contributions.
 __contributors__ = {}
 
 # This is a url where the most recent plugin package can be downloaded.
-__url__ = 'https://github.com/reticulatingspline/WolframAlpha' # 'http://supybot.com/Members/yourname/WolframAlpha/download'
+__url__ = '' # 'http://supybot.com/Members/yourname/TMDb/download'
 
 from . import config
 from . import plugin
 from imp import reload
-
-# In case we're being reloaded.
 reload(config)
-reload(plugin)
+reload(plugin) # In case we're being reloaded.
 # Add more reloads here if you add third-party modules and want them to be
 # reloaded when this plugin is reloaded.  Don't forget to import them as well!
 

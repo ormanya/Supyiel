@@ -26,14 +26,14 @@ class Insult(callbacks.Plugin):
         # load the  database
         self.insult_list = {}
         #try:
-        print os.path.exists(filename)
-        print os.getcwd()
+        print(os.path.exists(filename))
+        print(os.getcwd())
 
         if not os.path.exists(filename):
             dir_path = os.path.dirname(os.path.realpath(__file__))
             default_filename = os.path.join(os.path.dirname(os.path.realpath(__file__)), "default_insults.json")
             copyfile(default_filename, filename)
-            print "Copied"
+            print("Copied")
         with open(filename) as json_data:
                 self.insult_list = json.load(json_data)
             
