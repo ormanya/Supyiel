@@ -1042,10 +1042,6 @@ class dickHunt(callbacks.Plugin):
 					# Base message
 					message = 'There was no dick!'
 
-					# Adding additional message if kick
-					if self.registryValue('kickMode', currentChannel) and irc.nick in irc.state.channels[currentChannel].ops:
-						message += ' You just fucked yourself!'
-
 					# Adding nick and score
 					message += " %s: %i" % (msg.nick, self.scores[currentChannel][msg.nick])
 
@@ -1056,7 +1052,8 @@ class dickHunt(callbacks.Plugin):
 
 					# If kickMode is enabled for this channel, and the bot have op capability, let's kick!
 					if self.registryValue('kickMode', currentChannel) and irc.nick in irc.state.channels[currentChannel].ops:
-						irc.queueMsg(ircmsgs.kick(currentChannel, msg.nick, message))
+						irc.reply(message)
+						irc.queueMsg(ircmsgs.kick(currentChannel, msg.nick, 'You just fucked yourself!'))
 					else:
 						# Else, just say it
 						irc.reply(message)
