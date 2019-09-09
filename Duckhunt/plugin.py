@@ -978,10 +978,6 @@ class DuckHunt(callbacks.Plugin):
                     # Base message
                     message = 'There was no duck!'
 
-                    # Adding additional message if kick
-                    if self.registryValue('kickMode', currentChannel) and irc.nick in irc.state.channels[currentChannel].ops:
-                        message += ' You just shot yourself!'
-
                     # Adding nick and score
                     message += " %s: %i" % (msg.nick, self.scores[currentChannel][msg.nick])
 
@@ -992,7 +988,8 @@ class DuckHunt(callbacks.Plugin):
 
                     # If kickMode is enabled for this channel, and the bot have op capability, let's kick!
                     if self.registryValue('kickMode', currentChannel) and irc.nick in irc.state.channels[currentChannel].ops:
-                        irc.queueMsg(ircmsgs.kick(currentChannel, msg.nick, message))
+                        irc.reply(message)
+                        irc.queueMsg(ircmsgs.kick(currentChannel, msg.nick, 'You just shot yourself!'))
                     else:
                         # Else, just say it
                         irc.reply(message)
