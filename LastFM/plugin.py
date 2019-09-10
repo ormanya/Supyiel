@@ -2,7 +2,7 @@
 # Copyright (c) 2006, Ilya Kuznetsov
 # Copyright (c) 2008,2012 Kevin Funk
 # Copyright (c) 2014-2017 James Lu <james2overdrivenetworks.com>
-# Copyright (c) 2016-2017 Ormanya
+# Copyright (c) 2016-2019 Ormanya
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -116,7 +116,6 @@ class LastFMDB():
     def unset(self, prefix):
         """Deletes a user from the database."""
         try:
-            #user = self.db.get(prefix)
             del self.db[prefix]
         except KeyError:
             log.warning("%s doesn't exist in db",prefix)
@@ -176,7 +175,6 @@ class LastFM(callbacks.Plugin):
         try:
             f = utils.web.getUrl(url).decode("utf-8")
         except utils.web.Error:
-            #irc.error("Error querying Last.FM for %s." % user, Raise=True)
             irc.reply("Error querying Last.FM for {0}".format(str(user)))
             return
         self.log.debug("LastFM.nowPlaying: url %s", url)
@@ -194,7 +192,6 @@ class LastFM(callbacks.Plugin):
         try:
             trackdata = tracks[0]
         except IndexError:
-            #irc.error("%s doesn't seem to have listened to anything." % user, Raise=True)
             irc.reply("{0} doesn't seem to have listened to anything.".format(str(user)))
             return
 
@@ -240,11 +237,6 @@ class LastFM(callbacks.Plugin):
             playcountT = 1
 
         try:
-#            time = int(trackdata["date"]["uts"])  # Time of last listen
-            # Format this using the preferred time format.
-#            tformat = conf.supybot.reply.format.time()
-#            time = datetime.fromtimestamp(time).strftime(tformat)
-
             # Calculate time since last played
             last_play = datetime.now() - datetime.fromtimestamp(int(trackdata["date"]["uts"]))
             # seconds
@@ -259,8 +251,6 @@ class LastFM(callbacks.Plugin):
             else:
                 time_passed = "%s days ago" % last_play.days
 
-            #tformat = conf.supybot.reply.format.time()
-            #time = "at %s" % datetime.fromtimestamp(time).strftime(tformat)
         except KeyError:  # Nothing given by the API?
             time_passed = "right now"
 
@@ -271,7 +261,6 @@ class LastFM(callbacks.Plugin):
             ddg = irc.getCallback("DDG")
             if ddg:
                 try:
-                    #search_string = 'site:youtube.com "%s - %s"' % (artist, track)
                     results = []
                     for site in ["youtube.com", "soundcloud.com", "bandcamp.com"]:
                         search_string = '+"%s" +"%s" SITE:%s' % (artist, track, site)
@@ -280,21 +269,8 @@ class LastFM(callbacks.Plugin):
                             # Check that artist and track are in title of result
                             if (artist in results[0][0]) and (track in results[0][0]):
                                 public_url = format('%u', results[0][2])
-                                break
-
-                    # else:
-                    #     time.sleep(2)
-                    #     search_string = 'site:soundcloud.com "%s - %s"' % (artist, track)
-                    #     results = ddg.search_core(search_string.encode('utf-8'), channel_context=msg.args[0], max_results=1, show_snippet=False)
-                    #     if results:
-                    #         public_url = format('%u', results[0][2])
-                    #     else:
-                    #         msg_string = "No Soundcloud link found for %s - %s" % (artist, track)
-                    #         log.info(msg_string.encode('utf-8')) 
-                    
+                                break                    
                 except:
-                    # If something breaks, log the error but don't cause the
-                    # entire np request to fail.
                     msg_string = 'LastFM: failed to get public link for track %s - %s' % (artist, track)
                     log.exception(msg_string.encode('utf-8'))        
 
@@ -337,7 +313,6 @@ class LastFM(callbacks.Plugin):
                     f = utils.web.getUrl(url).decode("utf-8")
                 except utils.web.Error:
                     self.log.debug("Unknown user {0}.".format(str(user)))
-                    #irc.reply("Unknown user {0}.".format(str(user)))
   
                 self.log.debug("LastFM.nowPlaying: url %s", url)
 
@@ -491,7 +466,6 @@ class LastFM(callbacks.Plugin):
         try:
             f = utils.web.getUrl(url).decode("utf-8")
         except utils.web.Error:
-            #irc.error("Unknown artist %s." % artist, Raise=True)
             irc.reply("Unknown artist {0}.".format(str(artist)))
             return
         self.log.debug("LastFM.similarArtists: url %s", url)
@@ -499,7 +473,6 @@ class LastFM(callbacks.Plugin):
         try:
             data = json.loads(f)["similarartists"]
         except KeyError:
-            #irc.error("Unknown artist %s." % artist, Raise=True)
             irc.reply("Unknown artist {0}.".format(str(artist)))
             return
 
@@ -561,13 +534,11 @@ class LastFM(callbacks.Plugin):
         try:
             f = utils.web.getUrl(url).decode("utf-8")
         except utils.web.Error:
-            #irc.error("Unknown LastFM user '%s'." % user, Raise=True)
             irc.reply("Unknown LastFM user {0}.".format(str(user)))
             return
 
         data = json.loads(f)
         keys = ("realname", "age", "gender", "country", "playcount", "url")
-        #profile = {"id": ircutils.bold(user)}
         profile = {"id": ircutils.bold(nick)}
         for tag in keys:
             s = data["user"][tag]
@@ -579,7 +550,6 @@ class LastFM(callbacks.Plugin):
         try:
             f = utils.web.getUrl(url).decode("utf-8")
         except utils.web.Error:
-            #irc.error("Unknown LastFM user '%s'." % user, Raise=True)
             irc.reply("Unknown LastFM user {0}.".format(str(user)))
             return 
         libraryList = json.loads(f)
@@ -592,15 +562,11 @@ class LastFM(callbacks.Plugin):
             tformat = conf.supybot.reply.format.time()
             s = datetime.fromtimestamp(timestamp).strftime(tformat)
         except:
-            #s = "N/A"
-            #irc.error("Unknown LastFM user '%s'." % user, Raise=True)
             irc.reply("Unknown LastFM user {0}.".format(str(user)))
             return
         finally:
             profile["registered"] = ircutils.bold(s)
 
-        #irc.reply("%(id)s (realname: %(realname)s) registered on %(registered)s; age: %(age)s / %(gender)s; "
-        #          "Country: %(country)s; Tracks played: %(playcount)s" % profile)
         irc.reply("%(id)s registered on %(registered)s; "
                   "Country: %(country)s; Artists played: %(artistcount)s Tracks played: %(playcount)s URL: %(url)s" % profile)
 
@@ -610,8 +576,6 @@ class LastFM(callbacks.Plugin):
 
         Reports the percent similarity between two users, based on their top 100 artists over the last 12 months.
         """
-        #irc.error("This command is not ready yet. Stay tuned!", Raise=True)
-
         apiKey = self.registryValue("apiKey")
         if not apiKey:
             irc.error("The API Key is not set. Please set it via "
@@ -655,7 +619,6 @@ class LastFM(callbacks.Plugin):
             user1 = self.db.get(msg.prefix)
 
         # Get library information for user
-        #artists = [[],[]]
         artists = []
         artistsplays = []
         artistcount = [0,0]
@@ -677,7 +640,6 @@ class LastFM(callbacks.Plugin):
                 try:
                     f = utils.web.getUrl(url).decode("utf-8")
                 except utils.web.Error:
-                    #irc.error("Unknown LastFM user '%s'." % user, Raise=True)
                     irc.reply("Unknown LastFM user {0}.".format(str(user)))
                     return 
                 libraryList = json.loads(f)
@@ -689,7 +651,6 @@ class LastFM(callbacks.Plugin):
                 artistcount[idx] = min(artistcount[idx], totartists)
 
                 for artist in libraryList["artists"]["artist"]:
-                    # artists[idx].append({"name": artist["name"], "plays" : artist["playcount"]})
                     artists[idx].append(artist["name"])
                     artistsplays[idx].append(artist["playcount"])
 
@@ -699,8 +660,6 @@ class LastFM(callbacks.Plugin):
 
         totalArtists = artistcount[0] + artistcount[1] - commonArtists
 
-
-        #irc.reply("%s and %s have %d artists in common, out of %s artists" % (nick1,nick2,commonArtists,totalArtists))
         irc.reply("%s and %s are %3.1f%% similar" % (nick1,nick2,100*float(commonArtists)/float(totalArtists)))
                 
     @wrap([optional("something"), optional("something")])
@@ -710,8 +669,6 @@ class LastFM(callbacks.Plugin):
         Reports the top 10 artists for the user, over the specified period. Options for <period> are "overall | 7day | 1month | 3month | 6month | 12month".
         Default period is 1month.
         """
-        #irc.error("This command is not ready yet. Stay tuned!", Raise=True)
-
         apiKey = self.registryValue("apiKey")
         if not apiKey:
             irc.error("The API Key is not set. Please set it via "
@@ -757,7 +714,6 @@ class LastFM(callbacks.Plugin):
             period = "1month"
 
         # Get library information for user
-        #artists = [[],[]]
         artists = []
         artistsplays = []
         artistcount = 0
@@ -775,13 +731,11 @@ class LastFM(callbacks.Plugin):
 
         # Get list of artists for each library
 
-#        url = "%sapi_key=%s&method=library.getArtists&user=%s&limit=%d&period=12month&format=json" % (self.APIURL, apiKey, user, limit)
         url = "%sapi_key=%s&method=User.getTopArtists&user=%s&limit=%d&period=%s&format=json" % (self.APIURL, apiKey, user, limit, period)
         self.log.debug("LastFM.library: url %s", url)
         try:
             f = utils.web.getUrl(url).decode("utf-8")
         except utils.web.Error:
-            #irc.error("Unknown LastFM user '%s'." % user, Raise=True) 
             irc.reply("Unknown LastFM user {0}.".format(str(user)))
             return
         libraryList = json.loads(f)
@@ -790,14 +744,10 @@ class LastFM(callbacks.Plugin):
         # prevent nick highlights
         try:
             for artist in libraryList["topartists"]["artist"]:
-                #artists.append(artist["name"])
-                #artistsplays.append(artist["playcount"])
                 outstr = outstr + (" %s [%s]," % (ircutils.bold(artist["name"]), artist["playcount"]))
             outstr = outstr[:-1]
-            #irc.reply("%s and %s have %d artists in common, out of %s artists" % (nick1,nick2,commonArtists,totalArtists))
             irc.reply(outstr)
         except:
-            #irc.error("%s has not scrobbled any tracks yet" % user)
             irc.reply("{0} has not scrobbled any tracks yet.".format(str(user)))
             return
 
@@ -820,7 +770,6 @@ class LastFM(callbacks.Plugin):
         try:
             f = utils.web.getUrl(url).decode("utf-8")
         except utils.web.Error:
-            #irc.error("Unknown artist %s." % artist, Raise=True)
             irc.reply("Unknown artist {0}.".format(str(artist)))
             return
         self.log.debug("LastFM.bio: url %s", url)
@@ -828,7 +777,6 @@ class LastFM(callbacks.Plugin):
         try:
             data = json.loads(f)["artist"]
         except KeyError:
-            #irc.error("Unknown artist %s." % artist, Raise=True)
             irc.reply("Unknown artist {0}.".format(str(artist)))
             return
 
