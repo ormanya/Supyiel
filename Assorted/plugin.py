@@ -36,6 +36,8 @@ import supybot.plugins as plugins
 import supybot.ircutils as ircutils
 import supybot.callbacks as callbacks
 
+import requests
+
 
 class Assorted(callbacks.Plugin):
     """Add the help for "@plugin help Assorted" here
@@ -191,7 +193,8 @@ class Assorted(callbacks.Plugin):
         Display random catpic from /r/cats
         """
 
-        urls = ['http://imgur.com/r/cats','http://imgur.com/r/CatGifs','http://imgur.com/r/funnycats','http://imgur.com/r/supermodelcats']
+        urls = ['http://imgur.com/r/cats','http://imgur.com/r/funnycats','http://imgur.com/r/supermodelcats', \
+                'http://imgur.com/r/CatGifs']
         url = random.choice(urls)
         html = self._httpget(url)
         if not html:  # http fetch breaks.
@@ -203,14 +206,26 @@ class Assorted(callbacks.Plugin):
         zz = []
         for p in px:
             l = 'http://imgur.com' + p.find('a')['href']
+            print(l)
             if sys.version_info[0] == 3:
                 t = p.find('p').getText()
             else:
                 t = p.find('p').getText().encode('utf-8')
             zz.append({'l':l, 't':t})
-        # output
         o = random.choice(zz)
-        irc.reply("{0} :: {1}".format(o['t'], o['l']))
+        #output
+        img_tag = o['l'].split('/')[-1]
+        title = o['t']
+        base_url = 'https://i.imgur.com/{}'.format(img_tag)
+        if requests.get(base_url+'.mp4').status_code == 200:
+            url = base_url+'.mp4'
+            irc.reply('{0} :: {1}'.format(title, url))          
+        elif requests.get(base_url+'.jpg').status_code == 200:
+            url = base_url+'.jpg'
+            irc.reply('{0} :: {1}'.format(title, url)) 
+        else:
+            irc.reply('The kitties are playing hide and seek! Try to find them again!')  
+
 
     catpix = wrap(catpix)
 
