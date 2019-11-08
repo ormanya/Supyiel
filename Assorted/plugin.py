@@ -190,7 +190,7 @@ class Assorted(callbacks.Plugin):
 
     def catpix(self, irc, msg, args):
         """
-        Display random catpic from /r/cats
+        Display random catpic from several subreddits
         """
 
         urls = ['http://imgur.com/r/cats','http://imgur.com/r/funnycats','http://imgur.com/r/supermodelcats', \
@@ -200,6 +200,7 @@ class Assorted(callbacks.Plugin):
         if not html:  # http fetch breaks.
             irc.reply("ERROR: Trying to open: {0}".format(url))
             return
+
         # process html
         soup = BeautifulSoup(html) #, convertEntities=BeautifulSoup.HTML_ENTITIES, fromEncoding='utf-8')
         px = soup.findAll('div', attrs={'class':'post'})
@@ -213,10 +214,11 @@ class Assorted(callbacks.Plugin):
                 t = p.find('p').getText().encode('utf-8')
             zz.append({'l':l, 't':t})
         o = random.choice(zz)
+
         #output
         img_tag = o['l'].split('/')[-1]
-        title = o['t']
         base_url = 'https://i.imgur.com/{}'.format(img_tag)
+        title = o['t']
         if requests.get(base_url+'.mp4').status_code == 200:
             url = base_url+'.mp4'
             irc.reply('{0} :: {1}'.format(title, url))          
@@ -224,7 +226,7 @@ class Assorted(callbacks.Plugin):
             url = base_url+'.jpg'
             irc.reply('{0} :: {1}'.format(title, url)) 
         else:
-            irc.reply('The kitties are playing hide and seek! Try to find them again!')  
+            irc.reply('The kitties are playing hide and seek! Try looking again!')  
 
 
     catpix = wrap(catpix)
