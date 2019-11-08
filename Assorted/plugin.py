@@ -169,12 +169,12 @@ class Assorted(callbacks.Plugin):
 
     gasprices = wrap(gasprices, (['somethingWithoutSpaces']))
 
-    def catfacts(self, irc, msg, args):
+    def catfact(self, irc, msg, args):
         """
         Display random factfact.
         """
         
-        url = 'http://catfacts-api.appspot.com/api/facts'
+        url = 'https://catfact.ninja/fact'
         html = self._httpget(url)
         if not html:  # http fetch breaks.
             irc.reply("ERROR: Trying to open: {0}".format(url))
@@ -182,11 +182,11 @@ class Assorted(callbacks.Plugin):
         # process html
         html = html.decode('utf-8')
         jsondata = json.loads(html)
-        fact = jsondata.get('facts')
+        fact = jsondata.get('fact')
         if fact:
-            irc.reply(fact[0])
+            irc.reply(fact)
     
-    catfacts = wrap(catfacts)
+    catfact = wrap(catfact)
 
     def catpix(self, irc, msg, args):
         """
