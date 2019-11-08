@@ -191,7 +191,8 @@ class Assorted(callbacks.Plugin):
         Display random catpic from /r/cats
         """
 
-        url = 'http://imgur.com/r/cats'
+        urls = ['http://imgur.com/r/cats','http://imgur.com/r/CatGifs','http://imgur.com/r/funnycats','http://imgur.com/r/supermodelcats']
+        url = random.choice(urls)
         html = self._httpget(url)
         if not html:  # http fetch breaks.
             irc.reply("ERROR: Trying to open: {0}".format(url))
@@ -245,7 +246,7 @@ class Assorted(callbacks.Plugin):
             irc.reply("No matches for %s" % text.decode('utf-8'))
         else:
             o = random.choice(zz)
-            irc.reply("{0} :: {1}".format(o['t'].decode('utf-8'), o['l']))
+            irc.reply("{0} :: {1}".format(o['t'], o['l']))
 
     kpix = wrap(kpix, [optional('somethingWithoutSpaces')])
 
