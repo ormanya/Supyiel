@@ -271,9 +271,8 @@ class LastFM(callbacks.Plugin):
                                 public_url = format('%u', results[0][2])
                                 break                    
                 except:
-                    msg_string = 'LastFM: failed to get public link for track %s - %s' % (artist, track)
-                    log.exception(msg_string.encode('utf-8'))        
-
+                    msg_string = 'LastFM: Failed to get public link for track %s - %s' % (artist, track)
+                    log.exception(msg_string) 
 
         nick_bold = ircutils.bold(nick[0]) + '\u200B' + ircutils.bold(nick[1:])
         try:

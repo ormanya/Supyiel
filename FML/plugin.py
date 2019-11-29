@@ -98,12 +98,16 @@ class FML(callbacks.Plugin):
                 page = requests.get('https://www.fmylife.com/random')
             except utils.web.Error as e:
                 irc.error(str(e), Raise=True)
-
-            tree = html.fromstring(page.content)
-            s = tree.xpath('//*[@id="content"]/div/div[1]/div[1]/article[1]/div[1]/div[2]/a/text()')
-            s = s[0].replace('\n','')
-            print(s)
-            irc.reply(s)
+            try:
+                tree = html.fromstring(page.content)
+                s = tree.xpath('//*[@id="content"]/div/div[1]/div[1]/article[1]/div[1]/div[2]/a/text()')
+                s = s[0].replace('\n','')
+                if len(s) > 0:
+                    irc.reply(s)
+                else:
+                    irc.reply('Fuck your life. No results for you. Try again.')
+            except:
+                irc.reply('Fuck your life. No results for you. Try again.')
 
     fml = wrap(fml, [additional('positiveInt')])
 

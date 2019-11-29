@@ -153,6 +153,7 @@ class Timebomb(callbacks.Plugin):
                 self.irc.sendMsg(ircmsgs.privmsg(self.channel, '\x031,1.......,\x034,1-=\x034,1II\x037,1..I\x034,1.I=-,\x031,1........'))
                 self.irc.sendMsg(ircmsgs.privmsg(self.channel, '\x031,1.......\x034,1`-=\x037,1#$\x038,1%&\x037,1%$#\x034,1=-\'\x031,1........'))
             else:
+                # sendMsg is supposed to have less delay, so I tried in the above to cuase faster output to channel
                 self.irc.sendMsg(ircmsgs.privmsg(self.channel, 'KABOOM!'))
 
             ban_hostmask = str(self.victim) + '!*@*'
@@ -240,7 +241,7 @@ class Timebomb(callbacks.Plugin):
         #####
         #irc.reply('These people are eligible: %s' % utils.str.commaAndify(nicks))
         victim = self.rng.choice(nicks)
-        while victim == self.lastBomb or victim in self.registryValue('exclusions', msg.args[0]):
+        while victim == self.lastBomb or victim in [item.lower() for item in self.registryValue('exclusions', msg.args[0])]:
             victim = self.rng.choice(nicks)
         self.lastBomb = victim
         detonateTime = self.rng.randint(self.registryValue('minRandombombTime', msg.args[0]), self.registryValue('maxRandombombTime', msg.args[0]))
@@ -263,6 +264,7 @@ class Timebomb(callbacks.Plugin):
         """<nick>
 
         For bombing people!"""
+        victim_orig = victim
         victim = victim.lower()
         channel = ircutils.toLower(channel)
         if not self.registryValue('allowBombs', msg.args[0]):
@@ -274,6 +276,12 @@ class Timebomb(callbacks.Plugin):
                 return
         except KeyError:
             pass
+        try:
+            if victim in [item.lower() for item in self.registryValue('exclusions', msg.args[0])]:
+                irc.reply('I refuse to bomb my friend %s' % (victim_orig))
+                return
+        except KeyError:
+            pass            
         if victim == irc.nick.lower() and not self.registryValue('allowSelfBombs', msg.args[0]):
             irc.reply('You really expect me to bomb myself?  Stuffing explosives into my own pants isn\'t exactly my idea of fun.')
             return

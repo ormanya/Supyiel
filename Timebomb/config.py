@@ -87,7 +87,7 @@ conf.registerGlobalValue(Timebomb, 'shortcolors',
 conf.registerChannelValue(Timebomb, 'exclusions',
         registry.SpaceSeparatedListOfStrings([], 
         """A list of nicks who should be excluded from being 
-            randombombed"""))
+            bombed"""))
 
 conf.registerChannelValue(Timebomb, 'allowBombs', 
         registry.Boolean(False, """Determines whether timebombs are allowed 
