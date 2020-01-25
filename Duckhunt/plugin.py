@@ -1057,7 +1057,7 @@ class DuckHunt(callbacks.Plugin):
                 out_dict = sorted(iter(list(self.scores.get(currentChannel).items())), key=lambda k_v4:(k_v4[1],k_v4[0]), reverse=True)
                 for i, (nick, score) in enumerate(out_dict):
                     out_dict[i] = (self.hl_protect(nick), score)
-                irc.sendMsg(ircmsgs.privmsg(currentChannel, repr(out_dict)))
+                irc.sendMsg(ircmsgs.privmsg(currentChannel, str(out_dict)))
 
 
 
