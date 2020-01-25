@@ -48,6 +48,7 @@ except ImportError:
     # without the i18n module
     _ = lambda x:x
 
+from unidecode import unidecode
 
 class WeatherDB():
     """WeatherDB class to store our users and their settings."""
@@ -288,7 +289,7 @@ class Weather(callbacks.Plugin):
         Use your zip/postal code to keep it simple.
         Ex: setweather 10012
         """
-        self.db.setweather(msg.nick.lower(), optlocation)
+        self.db.setweather(msg.nick.lower(), unidecode(optlocation.decode('utf-8')))
         irc.replySuccess()
 
     setweather = wrap(setweather, [('text')])
@@ -389,7 +390,10 @@ class Weather(callbacks.Plugin):
                 for (k, v) in usersetting.items():
                     args[k] = v
             # Prefer the location given in the command, falling back to the one stored in the DB if not given.
-            location = location or usersetting["location"]
+            if location:
+                location = unidecode(location.decode('utf-8')) 
+            else:
+                location = usersetting["location"]
             args['imperial'] = (not usersetting["metric"])
         # If both command line and DB locations aren't given, bail.
         if not location:
@@ -397,10 +401,9 @@ class Weather(callbacks.Plugin):
                 irc.error("I did not find a preset location for %s." % nick, Raise=True)
             else:
                 irc.error("I did not find a preset location for you. Set one via 'setweather <location>'.", Raise=True)
-
         loc = self._wuac(location)
         if not loc:
-            irc.error("Failed to find a valid location for: %r" % location, Raise=True)
+            irc.error("Failed to find a valid location for: {}".format(location), Raise=True)
         else:
             # Use the first location. XXX: maybe make this more configurable?
             loc = loc[0]
