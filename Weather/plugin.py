@@ -289,7 +289,13 @@ class Weather(callbacks.Plugin):
         Use your zip/postal code to keep it simple.
         Ex: setweather 10012
         """
-        self.db.setweather(msg.nick.lower(), unidecode(optlocation.decode('utf-8')))
+        # Backwards compability to python2
+        try:
+            optlocation = optlocation.decode('utf-8')
+        except AttributeError:
+            pass
+        optlocation = unidecode(optlocation) 
+        self.db.setweather(msg.nick.lower(), optlocation)
         irc.replySuccess()
 
     setweather = wrap(setweather, [('text')])
@@ -391,7 +397,11 @@ class Weather(callbacks.Plugin):
                     args[k] = v
             # Prefer the location given in the command, falling back to the one stored in the DB if not given.
             if location:
-                location = unidecode(location.decode('utf-8')) 
+                try:
+                    location = location.decode('utf-8')
+                except AttributeError:
+                    pass
+                location = unidecode(location) 
             else:
                 location = usersetting["location"]
             args['imperial'] = (not usersetting["metric"])
