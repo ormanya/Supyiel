@@ -97,7 +97,7 @@ class DuckHunt(callbacks.Plugin):
         """
         Inserts non-printing character in nick to prevent highlights
         """
-        return nick[0] + '\u200B' + nick[1:]
+        return nick[0] + u'\u200B' + nick[1:]
 
     def _calc_scores(self, channel):
         """
@@ -1055,9 +1055,17 @@ class DuckHunt(callbacks.Plugin):
             else:
                 # Showing scores
                 out_dict = sorted(iter(list(self.scores.get(currentChannel).items())), key=lambda k_v4:(k_v4[1],k_v4[0]), reverse=True)
-                for i, (nick, score) in enumerate(out_dict):
-                    out_dict[i] = (self.hl_protect(nick), score)
-                irc.sendMsg(ircmsgs.privmsg(currentChannel, str(out_dict)))
+                score_list = []
+#                for i, (nick, score) in enumerate(out_dict):
+#                    #out_dict[i] = (self.hl_protect(nick), score)
+#                    score_list.append(u'{}:{}'.format(self.hl_protect(nick), str(score)))
+#                    print(score_list)
+#                irc.sendMsg(ircmsgs.privmsg(currentChannel, ', '.join(score_list)))
+                out_msg = "Scores:"
+                for (nick, score) in out_dict:
+                    out_msg = out_msg + " {} {},".format(self.hl_protect(nick), score)
+                out_msg = out_msg[:-1]
+                irc.sendMsg(ircmsgs.privmsg(currentChannel, out_msg))
 
 
 
