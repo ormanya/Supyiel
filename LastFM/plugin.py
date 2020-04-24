@@ -137,6 +137,39 @@ class LastFM(callbacks.Plugin):
         self.db.flush()
         self.__parent.die()
 
+    def getVideoLink(self, irc, msg, artist, track):
+        # Get a video link for particular artist and track title
+        sites = ["youtube.com", "soundcloud.com", "bandcamp.com"]
+        max_results = 5 # number of results to check for each site
+        ddg = irc.getCallback("DDG")
+        if ddg:
+            try:
+                results = []
+                for site in sites:
+                    search_string = '+"%s" +"%s" SITE:%s' % (artist, track, site)
+                    results = ddg.search_core(search_string.encode('utf-8'), channel_context=msg.args[0], max_results=max_results, show_snippet=False)
+                    if results:
+                        for result in results:
+                        # Check that artist and track are in title of result
+                            if (artist in result[0]) and (track in result[0]):
+                                public_url = format('%u', result[2])
+                                msg_string = 'Querying {}'.format(public_url)
+                                print(msg_string)
+                                return public_url  
+                            else:
+                                msg_string = '{} is not a valid result'.format(result[0])
+                                print(msg_string)                 
+                    else:
+                        msg_string = 'No results found for {} - {} at {}'.format(artist, track, site) 
+                        print(msg_string)                 
+            except:
+                msg_string = 'LastFM: Failed to get public link for track %s - %s' % (artist, track)
+                print(msg_string) 
+        else:
+            msg_string = 'DDG plugin not loaded'
+            print(msg_string) 
+        return ''
+
     @wrap([optional("something")]) 
     def np(self, irc, msg, args, user):
         """[<user>]
@@ -254,25 +287,13 @@ class LastFM(callbacks.Plugin):
         except KeyError:  # Nothing given by the API?
             time_passed = "right now"
 
-        public_url = ''
+        
         # If the DDG plugin from this repository is loaded, we can integrate
         # that by finding a YouTube link for the track.
         if self.registryValue("fetchYouTubeLink"):
-            ddg = irc.getCallback("DDG")
-            if ddg:
-                try:
-                    results = []
-                    for site in ["youtube.com", "soundcloud.com", "bandcamp.com"]:
-                        search_string = '+"%s" +"%s" SITE:%s' % (artist, track, site)
-                        results = ddg.search_core(search_string.encode('utf-8'), channel_context=msg.args[0], max_results=1, show_snippet=False)
-                        if results:
-                            # Check that artist and track are in title of result
-                            if (artist in results[0][0]) and (track in results[0][0]):
-                                public_url = format('%u', results[0][2])
-                                break                    
-                except:
-                    msg_string = 'LastFM: Failed to get public link for track %s - %s' % (artist, track)
-                    log.exception(msg_string) 
+            public_url = self.getVideoLink(irc, msg, artist, track)
+        else:
+            public_url = '' 
 
         nick_bold = ircutils.bold(nick[0]) + '\u200B' + ircutils.bold(nick[1:])
         try:
@@ -284,7 +305,6 @@ class LastFM(callbacks.Plugin):
         except:
             irc.reply('%s listened to %s by %s%s %s %s' %
                       (nick_bold, ircutils.bold(track), ircutils.bold(artist), album, time_passed, public_url.strip('<>')))
-
 
     @wrap([optional("something")]) 
     def whatsplaying(self, irc, msg, args, extra):
