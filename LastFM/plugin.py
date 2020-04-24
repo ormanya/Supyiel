@@ -147,11 +147,12 @@ class LastFM(callbacks.Plugin):
                 results = []
                 for site in sites:
                     search_string = '+"%s" +"%s" SITE:%s' % (artist, track, site)
+                    print(search_string.encode('utf-8'))
                     results = ddg.search_core(search_string.encode('utf-8'), channel_context=msg.args[0], max_results=max_results, show_snippet=False)
                     if results:
                         for result in results:
                         # Check that artist and track are in title of result
-                            if (artist in result[0]) and (track in result[0]):
+                            if (artist.lower() in result[0].lower()) and (track.lower() in result[0].lower()):
                                 public_url = format('%u', result[2])
                                 msg_string = 'Querying {}'.format(public_url)
                                 print(msg_string)
@@ -300,8 +301,6 @@ class LastFM(callbacks.Plugin):
            trackdata["@attr"]["nowplaying"]
            irc.reply('%s is listening to %s by %s%s [%s/%s] %s' %
                       (nick_bold, ircutils.bold(track), ircutils.bold(artist), album, playcount, playcountT, public_url.strip('<>')))
-
-
         except:
             irc.reply('%s listened to %s by %s%s %s %s' %
                       (nick_bold, ircutils.bold(track), ircutils.bold(artist), album, time_passed, public_url.strip('<>')))
