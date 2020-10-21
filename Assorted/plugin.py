@@ -38,7 +38,6 @@ import supybot.callbacks as callbacks
 
 import requests
 
-
 class Assorted(callbacks.Plugin):
     """Add the help for "@plugin help Assorted" here
     This should describe *how* to use this plugin."""
@@ -737,7 +736,7 @@ class Assorted(callbacks.Plugin):
         data = json.loads(html)
 
         if (data['value']['joke']):
-            joke = data['value']['joke']
+            joke = BeautifulSoup(data['value']['joke'], "html.parser")
         else:
             irc.reply("Missing output value.")
             return

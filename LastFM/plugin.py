@@ -151,8 +151,14 @@ class LastFM(callbacks.Plugin):
                     results = ddg.search_core(search_string.encode('utf-8'), channel_context=msg.args[0], max_results=max_results, show_snippet=False)
                     if results:
                         for result in results:
+                            print(result)
+                            print('\n')
                         # Check that artist and track are in title of result
-                            if (artist.lower() in result[0].lower()) and (track.lower() in result[0].lower()):
+                            artist_l = artist.lower()
+                            track_l = track.lower()
+
+                            if ((artist_l in result[0].lower()) or (artist_l in result[1].lower())) and \
+                               ((track_l in result[0].lower()) or (track_l in result[1].lower())):
                                 public_url = format('%u', result[2])
                                 msg_string = 'Querying {}'.format(public_url)
                                 print(msg_string)
