@@ -1103,11 +1103,13 @@ class dickHunt(callbacks.Plugin):
 				self.scores[currentChannel][winnernick] += self.perfectbonus
 			else:
 				# Showing scores
-				out_dict = sorted(iter(list(self.scores.get(currentChannel).items())), key=lambda k_v4:(k_v4[1],k_v4[0]), reverse=True)
-				for i, (nick, score) in enumerate(out_dict):
-					out_dict[i] = (self.hl_protect(nick), score)
-				irc.sendMsg(ircmsgs.privmsg(currentChannel, repr(out_dict)))
-
+                                out_dict = sorted(iter(list(self.scores.get(currentChannel).items())), key=lambda k_v4:(k_v4[1],k_v4[0]), reverse=True)
+                                score_list = []
+                                out_msg = "Scores:"
+                                for (nick, score) in out_dict:
+                                    out_msg = out_msg + " {} {},".format(self.hl_protect(nick), score)
+                                    out_msg = out_msg[:-1]
+                                    irc.sendMsg(ircmsgs.privmsg(currentChannel, out_msg))
 
 			# Getting channel best time (to see if the best time of this hunt is better)
 			channelbestnick = None
@@ -1119,7 +1121,7 @@ class dickHunt(callbacks.Plugin):
 			recordmsg = ''
 			if (self.toptimes.get(currentChannel)):
 				key,value = min(iter(list(self.toptimes.get(currentChannel).items())), key=lambda k_v6:(k_v6[1],k_v6[0]))
-			if (channelbesttime and value < channelbesttime):
+			if (channelbesttime and value < channelbesttime and self.toptimes.get(currentChannel)):
 				recordmsg = '. This is the new record for this channel! (previous record was held by ' + self.hl_protect(channelbestnick) + ' with ' + str(round(channelbesttime,2)) +  ' seconds)'
 			else:
 				try:

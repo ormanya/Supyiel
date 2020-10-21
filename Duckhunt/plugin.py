@@ -1079,7 +1079,7 @@ class DuckHunt(callbacks.Plugin):
             recordmsg = ''
             if (self.toptimes.get(currentChannel)):
                 key,value = min(iter(list(self.toptimes.get(currentChannel).items())), key=lambda k_v6:(k_v6[1],k_v6[0]))
-            if (channelbesttime and value < channelbesttime):
+            if (channelbesttime and value < channelbesttime and self.toptimes.get(currentChannel)):
                 recordmsg = '. This is the new record for this channel! (previous record was held by ' + self.hl_protect(channelbestnick) + ' with ' + str(round(channelbesttime,2)) +  ' seconds)'
             else:
                 try:
