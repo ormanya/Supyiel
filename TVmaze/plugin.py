@@ -13,6 +13,8 @@ from dateutil.tz import tzlocal
 from babel.dates import format_timedelta
 from dateutil.parser import parse
 
+from lxml import html
+
 class Error(Exception):
    """Base class for other exceptions"""
    pass
@@ -81,6 +83,9 @@ def fetch(show=False):
 
     except:
        return False # placeholder for better error handling
+
+def strip_html(s):
+    return str(html.fromstring(s).text_content())
 
 class tvmaze(callbacks.Plugin):
     threaded=True
@@ -194,14 +199,19 @@ class tvmaze(callbacks.Plugin):
 
             show_genre = format('%s/%s',
                     (show['type']),
-                    '/'.join(show['genres']))
+                    '-'.join(show['genres']))
 
             show_language = format('%s',
                     (show['language']))
 
+            show_summary = strip_html(format('%s',
+                    (show['summary'])))
+
 
             irc.reply(format('%s on %s. %s. %s.', show_schedule, show_network,
                 show_genre, show_language))
+
+            irc.reply(format('%s', show_summary))
 
 
     tv = wrap(tv, [getopts({'d': '', 'detail': '', 'rip': '', 'next': '', 'last': ''}), 'text'])
