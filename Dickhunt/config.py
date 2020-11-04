@@ -64,8 +64,8 @@ conf.registerChannelValue(dickHunt, 'missProbability',
 conf.registerChannelValue(dickHunt, 'kickMode',
      registry.Boolean(True, """If someone bends over  when there is no dick, should he be kicked from the channel? (this requires the bot to be op on the channel)"""))
 
-conf.registerChannelValue(dickHunt, 'autoFriday',
-     registry.Boolean(True, """ Do we need to automatically allow  more dicks on friday? """))
+conf.registerChannelValue(dickHunt, 'autoOrgy',
+     registry.Boolean(True, """ Do we need to automatically allow  more dicks on orgy? """))
 
 
 
