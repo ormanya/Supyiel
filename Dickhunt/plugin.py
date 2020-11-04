@@ -728,7 +728,7 @@ class dickHunt(callbacks.Plugin):
 							irc.reply("Scores for week " + str(week) + ": " + msgstring)
 							# Who's the winner at this point?
 							winnernick, winnerscore = max(iter(list(weekscores.items())), key=lambda k_v1:(k_v1[1],k_v1[0]))
-							rc.reply("Leader: %s with %i points." % (self.hl_protect(winnernick), winnerscore)) 
+							irc.reply("Leader: %s with %i points." % (self.hl_protect(winnernick), winnerscore)) 
 
 						else:
 							irc.reply("There aren't any week scores for this week yet.")
