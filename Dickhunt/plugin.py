@@ -263,8 +263,8 @@ class dickHunt(callbacks.Plugin):
 		if (not self.orgyMode.get(channel)):
 			self.orgyMode[channel] = False
 
-		if (not self.manualorgy.get(channel)):
-			self.manualorgy[channel] = False
+		if (not self.manualOrgy.get(channel)):
+			self.manualOrgy[channel] = False
 
 
 		if self.registryValue('autoOrgy', channel) == True:
