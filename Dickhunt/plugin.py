@@ -62,8 +62,8 @@ class dickHunt(callbacks.Plugin):
 	worsttimes = {}    # Worst times for the current hunt
 	channelworsttimes = {} # Saved worst times for the channel
 	averagetime = {}   # Average shooting time for the current hunt
-	fridayMode = {}    # Are we on friday mode? (automatic)
-	manualFriday = {}  # Are we on friday mode? (manual)
+	orgyMode = {}      # Are we on orgy mode? (automatic)
+	manualOrgy = {}    # Are we on orgy mode? (manual)
 	missprobability = {} # Probability to miss a dick when shooting
 	week = {}          # Scores for the week
 	channelweek = {}   # Saved scores for the week
@@ -259,19 +259,19 @@ class dickHunt(callbacks.Plugin):
 		if not self.leader.get(channel):
 			self.leader[channel] = None
 
-		# autoFriday?
-		if (not self.fridayMode.get(channel)):
-			self.fridayMode[channel] = False
+		# autoOrgy?
+		if (not self.orgyMode.get(channel)):
+			self.orgyMode[channel] = False
 
-		if (not self.manualFriday.get(channel)):
-			self.manualFriday[channel] = False
+		if (not self.manualorgy.get(channel)):
+			self.manualorgy[channel] = False
 
 
-		if self.registryValue('autoFriday', channel) == True:
+		if self.registryValue('autoOrgy', channel) == True:
 			if int(time.strftime("%w")) == 5 and int(time.strftime("%H")) > 8 and int(time.strftime("%H")) < 17:
-				self.fridayMode[channel] = True
+				self.orgyMode[channel] = True
 			else:
-				self.fridayMode[channel] = False
+				self.orgyMode[channel] = False
 
 		# Miss probability
 		if self.registryValue('missProbability', channel):
@@ -285,7 +285,7 @@ class dickHunt(callbacks.Plugin):
 		else:
 			self.preparetime[channel] = 5
 
-		if self.fridayMode[channel] == False and self.manualFriday[channel] == False:
+		if self.orgyMode[channel] == False and self.manualOrgy[channel] == False:
 			# Init min throttle[currentChannel] and max throttle[currentChannel]
 			if self.registryValue('minthrottle', channel):
 				self.minthrottle[channel] = self.registryValue('minthrottle', channel)
@@ -454,30 +454,30 @@ class dickHunt(callbacks.Plugin):
 
 	stop = wrap(stop, [optional('channel')])
 
-	def fridaymode(self, irc, msg, args, channel, status):
+	def orgymode(self, irc, msg, args, channel, status):
 		"""
 		[<status>] 
-		Enable/disable friday mode! (there are lots of dicks on friday :))
+		Enable/disable orgy mode! (there are lots of dicks in an orgy :))
 		"""
 		if irc.isChannel(channel):
 
 			if (status == 'status'):
-				irc.reply('Manual friday mode for ' + channel + ' is ' + str(self.manualFriday.get(channel)));
-				irc.reply('Auto friday mode for ' + channel + ' is ' + str(self.fridayMode.get(channel)));
+				irc.reply('Manual orgy mode for ' + channel + ' is ' + str(self.manualOrgy.get(channel)));
+				irc.reply('Auto orgy mode for ' + channel + ' is ' + str(self.orgyMode.get(channel)));
 			else:
-				if (self.manualFriday.get(channel) == None or self.manualFriday[channel] == False):
-					self.manualFriday[channel] = True
-					irc.reply("Friday mode is now enabled! Fuck alllllllllllll the dicks!")
+				if (self.manualOrgy.get(channel) == None or self.manualOrgy[channel] == False):
+					self.manualOrgy[channel] = True
+					irc.reply("Orgy mode is now enabled! Fuck alllllllllllll the dicks!")
 				else:
-					self.manualFriday[channel] = False
-					irc.reply("Friday mode is now disabled.")
+					self.manualOrgy[channel] = False
+					irc.reply("Orgy mode is now disabled.")
 
 			self._initthrottle(irc, msg, args, channel)
 		else:
 			irc.error('You have to be on a channel')
 
 
-	fridaymode = wrap(fridaymode, ['channel', 'admin', optional('anything')])
+	orgymode = wrap(orgymode, ['channel', 'admin', optional('anything')])
 
 	def released(self, irc, msg, args):
 		"""
