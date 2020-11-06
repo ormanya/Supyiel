@@ -477,7 +477,7 @@ class dickHunt(callbacks.Plugin):
 			irc.error('You have to be on a channel')
 
 
-	orgymode = wrap(orgymode, ['channel', 'admin', optional('anything')])
+	orgymode = wrap(orgymode, ['channel', optional('anything')])
 
 	def released(self, irc, msg, args):
 		"""
