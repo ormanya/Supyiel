@@ -38,8 +38,8 @@ class WebParser():
 
 	def prepareStatusString(self, site_name, status, status_headers, breakpoints, line_headers):
 		# Specify look and feel
-		status_states = ["Down","Up","Iffy","Mean"]
-		status_symbols = ["Ⓧ","✓","◯","💩"]
+		status_states = ["Down","Up","Iffy","Amazing"]
+		status_symbols = ["Ⓧ","✓","◯","😳"] #💩
 		status_colours = [chr(3)+"04",chr(3)+"03",chr(3)+"07",chr(3)+"05"]
 
 		# Prepare output status message
@@ -444,37 +444,21 @@ class Trackers(callbacks.Plugin):
 		"""
 		Check the status of AB site, tracker, and irc.
 		"""
-
-		# This function is different than the others because it scrapes HTML rather than use an api site
-		url = "http://status.animebytes.tv"
+		url = "http://status.animebytes.tv/api/status"
 		site_name = "AB"
 
-        # Get web page content
-		headers = {'User-Agent' : 'Mozilla/5.0 (X11; Linux i686) AppleWebKit/537.17 (KHTML, like Gecko) Chrome/24.0.1312.27 Safari/537.17'}
-		try:
-			content = requests.get(url, headers=headers)
-		except:
-			irc.reply("Error: Couldn't connect to "+url)
-			sys.exit()
+		content = WebParser().getWebData(irc,url)
+		content = content["status"]
 
-		# Extract statuses
-		status_txt = re.search(r'.*site.*\n.*status (.*)"[\S\s]+tracker.*\n.*status (.*)"[\S\s]+irc.*\n.*status (.*)"', content.text)
-		status = []
-		for i in range(0,4):
-			if status_txt.group(i) == "normal":
-				status.append(1)
-			else:
-				status.append(0)
-
-		status = [status[1],status[3],status[2]]
-		status_headers = [site_name+" Site","IRC","Tracker"]
+		status = [content["site"]["status"], content["tracker"]["status"], content["irc"]["status"], content["mei"]["status"]]
+		status_headers = [site_name+" Site","Tracker","IRC","Image Host"]
 		breakpoints = [0]
 		line_headers = [""]
 
 		outStr = WebParser().prepareStatusString(site_name, status, status_headers, breakpoints,line_headers)
 
 		for i in range(0, len(outStr)):
-			irc.reply(outStr[i])
+		        irc.reply(outStr[i])
 
 	ab = wrap(abStatus, [optional("something")])
 
