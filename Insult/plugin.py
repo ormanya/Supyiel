@@ -41,7 +41,6 @@ class Insult(callbacks.Plugin):
        #    log.debug('Insults: Unable to load database: %s', e)
        #    print "bleh"
 
-    @wrap([optional("something")]) 
     def insult(self, irc, msg, args, victim):
         """[<target>]
 
@@ -54,7 +53,7 @@ class Insult(callbacks.Plugin):
         else:    
             irc.reply("%s" % response)
 
-#    insult = wrap(insult, [optional('text')])
+    insult = wrap(insult, [optional('text')])
 
 filename = conf.supybot.directories.data.dirize("insults.json")
 
