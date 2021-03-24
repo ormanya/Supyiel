@@ -13,6 +13,7 @@ import supybot.callbacks as callbacks
 import requests
 import json
 import sys
+import string, random
 
 class WebParser():
 	"""Contains functions for getting and parsing web data"""
@@ -31,22 +32,89 @@ class Quotes(callbacks.Plugin):
 	threaded = True
 
 	def Taytay(self, irc, msg, args, opts):
-		"""[--id]
+		"""[--image]
 
-		Returns Taylor Swift quote from https://taylor.rest. Use --id flag to specify a particular quote from the API.
+		Returns Taylor Swift quote from https://taylor.rest. Use --image to return an image too.
 		"""
-		if opts == "--image":
-			url = "https://api.taylor.rest/image"
-			key = "url"
-		else:
-                        url = "https://api.taylor.rest/"
-			key = "quote"
-		content = WebParser().getWebData(irc,url)
 
+		# Get quote
+		url = "https://api.taylor.rest/"
+		key = "quote"
+		content = WebParser().getWebData(irc,url)
 		outstr = content[key]
+
+		# Get image if available
+		if opts == "--image":
+			url = url + "image"
+			key = "url"
+			try:
+				content = WebParser().getWebData(irc,url)
+				outstr += " {}".format(url)
+			except:
+				pass
+
+		outstr += " -Taylor Swift"
 		irc.reply(outstr)
 
 	tay = wrap(Taytay, [optional("something")])
+
+	def GoodPlace(self, irc, msg, args, opts):
+		"""[--char <name>]
+
+		Returns quote from the TV show The Good Place. Use --char <name> to get quote from a specific character.
+		"""
+		base_url = "https://good-place-quotes.herokuapp.com/api/"
+		flags = ["char"]
+
+		if opts is not None:
+			opts = opts.split()
+			if opts[0] == "--char" and len(opts) > 1:
+				try:
+					url = base_url + "character/{}".format(opts[1])
+					content = WebParser().getWebData(irc,url)
+					content = random.choice(content)
+					print(content)
+				except:
+					irc.reply("There are no quotes from {}.".format(opts[1]))
+					return
+			else:
+				irc.reply("Unsupported parameters: {}".format(opts))
+				return
+		else:
+			url = base_url + "random"
+			content = WebParser().getWebData(irc,url)
+		print(content)
+	
+		outstr = "{} -{}".format(content["quote"], content["character"])
+
+		irc.reply(outstr)
+
+	goodplace = wrap(GoodPlace, [optional("text")])
+
+	def AestheticPerfection(self, irc, msg, args, opts):
+		"""[--image]
+
+		Returns quote from the band Aesthetic Perfection. Use --image to return an image too, when available.
+		"""
+
+		# Get quote
+		url = "http://ap-q.glitch.me/api"
+		key = "quote"
+		content = WebParser().getWebData(irc,url)
+		outstr = content[key]
+
+		# Get image if available
+		if opts == "--image":
+			key = "image"
+			try:
+				outstr += " {}".format(content[key])
+			except:
+				pass
+
+		outstr += " -Aesthetic Perfection"
+		irc.reply(outstr)
+
+	ap = wrap(AestheticPerfection, [optional("something")])
 
 Class = Quotes
 
