@@ -43,17 +43,18 @@ class Quotes(callbacks.Plugin):
 		content = WebParser().getWebData(irc,url)
 		outstr = content[key]
 
+
+		outstr += " -Taylor Swift "
 		# Get image if available
 		if opts == "--image":
 			url = url + "image"
 			key = "url"
 			try:
 				content = WebParser().getWebData(irc,url)
-				outstr += " {}".format(url)
+				outstr += " {}".format(content[key])
 			except:
 				pass
 
-		outstr += " -Taylor Swift"
 		irc.reply(outstr)
 
 	tay = wrap(Taytay, [optional("something")])
