@@ -315,11 +315,21 @@ class Trackers(callbacks.Plugin):
 		"""
 		url = "https://ggn.trackerstatus.info/api/status/"
 		site_name = "GGn"
+		status_keys = ["Website","TrackerHTTP","TrackerHTTPS","IRC","IRCTorrentAnnouncer","IRCUserIdentifier"]
+		status_headers = [site_name+" Site","Tracker","TrackerSSL","IRC","IRC Announce","IRC ID"]
 
 		content = WebParser().getWebData(irc,url)
 
-		status = [content["Website"], content["TrackerHTTP"], content["TrackerHTTPS"], content["IRC"], content["IRCTorrentAnnouncer"], content["IRCUserIdentifier"]]
-		status_headers = [site_name+" Site","Tracker","TrackerSSL","IRC","IRC Announce","IRC ID"]
+		status = []
+		for i,item in enumerate(status_keys):
+			try:
+				status += content[item]
+				status_header += status_headers[i]
+				print(i,status)
+
+			except:
+				print(status_headers[i])
+				pass
 		breakpoints = [0]	
 		line_headers = [""]	
 
