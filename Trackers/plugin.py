@@ -324,12 +324,8 @@ class Trackers(callbacks.Plugin):
 		for i,item in enumerate(status_keys):
 			try:
 				status += content[item]
-				status_header += status_headers[i]
-				print(i,status)
-
 			except:
-				print(status_headers[i])
-				pass
+				status_headers.pop(i)
 		breakpoints = [0]	
 		line_headers = [""]	
 
