@@ -222,8 +222,8 @@ class Trackers(callbacks.Plugin):
 
 		content = WebParser().getWebData(irc,url)
 
-		status = [content["Website"], content["TrackerHTTP"], content["TrackerHTTPS"], content["IRC"], content["IRCTorrentAnnouncer"], content["IRCUserIdentifier"]]
-		status_headers = [site_name+" Site","Tracker","Tracker SSL","IRC","IRC Announce","IRC ID"]
+		status = [content["Website"], content["TrackerHTTP"], content["TrackerHTTPS"], content["IRC"]] #, content["IRCTorrentAnnouncer"], content["IRCUserIdentifier"]]
+		status_headers = [site_name+" Site","Tracker","Tracker SSL","IRC"] #,"IRC Announce","IRC ID"]
 		breakpoints = [0]
 		line_headers = [""]
 
