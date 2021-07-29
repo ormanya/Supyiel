@@ -38,8 +38,8 @@ class WebParser():
 
 	def prepareStatusString(self, site_name, status, status_headers, breakpoints, line_headers):
 		# Specify look and feel
-		status_states = ["Down","Up","Iffy","Amazing"]
-		status_symbols = ["Ⓧ","✓","◯","😳"] #💩
+		status_states = ["Down","Up","Iffy","Stinky"]
+		status_symbols = ["Ⓧ","✓","◯","💩"] #😳
 		status_colours = [chr(3)+"04",chr(3)+"03",chr(3)+"07",chr(3)+"05"]
 
 		# Prepare output status message
