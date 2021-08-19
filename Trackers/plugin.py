@@ -213,37 +213,7 @@ class Trackers(callbacks.Plugin):
 
 	ops = wrap(opsStatus, [optional("something")])
 
-	def nwcdStatus(self, irc, msg, args, opts):
-		"""
-		Check the status of NWCD site, tracker, and irc. Use --message flag to force return of message, even if older than 24 hours.
-		"""
-		url = "http://nwcd.trackerstatus.info/api/status/"
-		site_name = "NWCD"
-
-		content = WebParser().getWebData(irc,url)
-
-		status = [content["Website"], content["TrackerHTTP"], content["TrackerHTTPS"], content["IRC"], content["IRCTorrentAnnouncer"], content["IRCUserIdentifier"], content["ImageHost"]]
-		status_headers = [site_name+" Site","Tracker","Tracker SSL","IRC","IRC Announce","IRC ID","Image Host"]
-		breakpoints = [0]
-		line_headers = [""]
-
-		outStr = WebParser().prepareStatusString(site_name, status, status_headers, breakpoints,line_headers)
-
-		for i in range(0, len(outStr)):
-			irc.reply(outStr[i])
-
-		# Output message if --message flag specified or newer than 1 day
-		interval = datetime.now() - datetime.fromtimestamp(float(content["tweet"]["unix"]))
-		if opts == "--message" or interval.days < 1:
-			message_string = content["tweet"]["message"]
-			time_string = self.formatTimeSince(interval)
-
-			outstr = "%s message: %s (%s)" % (site_name, message_string, time_string)
-			irc.reply(outstr)
-
-	nwcd = wrap(nwcdStatus, [optional("something")])
-
-
+	
 	def ptpStatus(self, irc, msg, args, opts):
 		"""
 		Check the status of PTP site, tracker, and irc. Use --message flag to force return of message, even if older than 24 hours.
