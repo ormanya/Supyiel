@@ -20,8 +20,8 @@ from datetime import datetime
 
 
 
-status_commands = ['btnStatus', 'redStatus', 'mtvStatus', 'nwcdStatus', 'ptpStatus', 'ggnStatus', 'arStatus', 'p32Status', 'ahdStatus', 'ahdStatus', 'empStatus', 'nblStatus']
-status_trackers = ['btn', 'red', 'mtv', 'nwcd', 'ptp', 'ggn', 'ar', 'p32', 'ahd', 'ahd', 'emp', 'nbl']
+status_commands = ['btnStatus', 'redStatus', 'ptpStatus', 'ggnStatus', 'arStatus', 'empStatus']
+status_trackers = ['btn', 'red', 'ptp', 'ggn', 'ar', 'emp']
 
 
 class WebParser():
@@ -213,36 +213,6 @@ class Trackers(callbacks.Plugin):
 
 	ops = wrap(opsStatus, [optional("something")])
 
-	def mtvStatus(self, irc, msg, args, opts):
-		"""
-		Check the status of MTV site, tracker, and irc. Use --message flag to force return of message, even if older than 24 hours.
-		"""
-		url = "http://mtv.trackerstatus.info/api/status/"
-		site_name = "MTV"
-
-		content = WebParser().getWebData(irc,url)
-
-		status = [content["Website"], content["TrackerHTTP"], content["TrackerHTTPS"], content["IRC"]] #, content["IRCTorrentAnnouncer"], content["IRCUserIdentifier"]]
-		status_headers = [site_name+" Site","Tracker","Tracker SSL","IRC"] #,"IRC Announce","IRC ID"]
-		breakpoints = [0]
-		line_headers = [""]
-
-		outStr = WebParser().prepareStatusString(site_name, status, status_headers, breakpoints,line_headers)
-
-		for i in range(0, len(outStr)):
-			irc.reply(outStr[i])
-
-		# Output message if --message flag specified or newer than 1 day
-		interval = datetime.now() - datetime.fromtimestamp(float(content["tweet"]["unix"]))
-		if opts == "--message" or interval.days < 1:
-			message_string = content["tweet"]["message"]
-			time_string = self.formatTimeSince(interval)
-
-			outstr = "%s message: %s (%s)" % (site_name, message_string, time_string)
-			irc.reply(outstr)				
-
-	mtv = wrap(mtvStatus, [optional("something")])
-
 	def nwcdStatus(self, irc, msg, args, opts):
 		"""
 		Check the status of NWCD site, tracker, and irc. Use --message flag to force return of message, even if older than 24 hours.
@@ -375,75 +345,6 @@ class Trackers(callbacks.Plugin):
 
 	ar = wrap(arStatus, [optional("something")])
 
-	def p32Status(self, irc, msg, args, opts):
-		"""
-		Check the status of AR site, tracker, and irc. Use --message flag to force return of message, even if older than 24 hours.
-		"""
-		url = "http://32p.trackerstatus.info/api/status/"
-		site_name = "32p"
-
-		content = WebParser().getWebData(irc,url)
-
-		status = [content["Website"], content["TrackerHTTP"], content["IRC"], content["IRCTorrentAnnouncer"], content["IRCUserIdentifier"]]
-		status_headers = [site_name+" Site","Tracker","IRC","IRC Announce","IRC ID"]
-		breakpoints = [0]
-		line_headers = [""]
-
-		outStr = WebParser().prepareStatusString(site_name, status, status_headers, breakpoints,line_headers)
-
-		for i in range(0, len(outStr)):
-		        irc.reply(outStr[i])
-
-		# Output message if --message flag specified or newer than 1 day
-		interval = datetime.now() - datetime.fromtimestamp(float(content["tweet"]["unix"]))
-		if opts == "--message" or interval.days < 1:
-			message_string = content["tweet"]["message"]
-			time_string = self.formatTimeSince(interval)
-
-			outstr = "%s message: %s (%s)" % (site_name, message_string, time_string)
-			irc.reply(outstr)
-
-	p32 = wrap(p32Status, [optional("something")])
-
-	def ahdStatus(self, irc, msg, args, all):
-		"""
-		Check the status of AHD site, tracker, and irc.
-		"""
-
-		# This function is different than the others because it scrapes HTML rather than use an api site
-		url = "https://status.awesome-hd.me"
-		site_name = "AHD"
-
-        # Get web page content
-		headers = {'User-Agent' : 'Mozilla/5.0 (X11; Linux i686) AppleWebKit/537.17 (KHTML, like Gecko) Chrome/24.0.1312.27 Safari/537.17'}
-		try:
-			content = requests.get(url, headers=headers)
-		except:
-			irc.reply("Error: Couldn't connect to "+url)
-			sys.exit()
-
-		# Extract statuses
-		status_txt = re.search(r'.*Site.*2x\ (.*)".*\n.*2x\ (.*)".*\n.*2x\ (.*)"', content.text)
-		print(status_txt)
-		status = []
-		for i in range(0,4):
-			if status_txt.group(i) == "green":
-				status.append(1)
-			else:
-				status.append(0)
-
-		status = [status[1],status[2],status[3]]
-		status_headers = [site_name+" Site","IRC","Tracker"]
-		breakpoints = [0]
-		line_headers = [""]
-
-		outStr = WebParser().prepareStatusString(site_name, status, status_headers, breakpoints,line_headers)
-
-		for i in range(0, len(outStr)):
-			irc.reply(outStr[i])
-
-	ahd = wrap(ahdStatus, [optional("something")])
-
 	def abStatus(self, irc, msg, args, all):
 		"""
 		Check the status of AB site, tracker, and irc.
@@ -503,35 +404,6 @@ class Trackers(callbacks.Plugin):
 			irc.reply(outStr[i])
 
 	emp = wrap(empStatus, [optional("something")])
-
-	def nblStatus(self, irc, msg, args, all):
-		"""
-		Check the status of Nebulance site, tracker, and irc.
-		"""
-		url = "https://status.nebulance.io/status.json"
-		site_name = "NBL"
-
-		content = WebParser().getWebData(irc,url)
-		content2 = content["services"]
-
-		status_tmp = [content2["site"]["status"],content2["tracker"]["status"],content2["tracker_ssl"]["status"],content2["imagehost"]["status"]]
-		status = []
-		for service in status_tmp:
-			if service:
-				status.append(1)
-			else:
-				status.append(0)
-		status_headers = [site_name+" Site","Tracker","Tracker SSL","Image Host"]
-
-		breakpoints = [0]
-		line_headers = [""]
-
-		outStr = WebParser().prepareStatusString(site_name, status, status_headers, breakpoints,line_headers)
-
-		for i in range(0, len(outStr)):
-			irc.reply(outStr[i])
-
-	nbl = wrap(nblStatus, [optional("something")])
 
 	# def autoAnnounce(self, irc):
 	# 	"""Schedule periodic announces for enabled trackers and channels"""
