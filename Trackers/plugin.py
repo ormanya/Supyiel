@@ -255,8 +255,8 @@ class Trackers(callbacks.Plugin):
 		"""
 		url = "https://ggn.trackerstatus.info/api/status/"
 		site_name = "GGn"
-		status_keys = ["Website","TrackerHTTP","TrackerHTTPS","IRC","IRCTorrentAnnouncer","IRCUserIdentifier"]
-		status_headers = [site_name+" Site","Tracker","TrackerSSL","IRC","IRC Announce","IRC ID"]
+		status_keys = ["Website","TrackerHTTP","TrackerHTTPS"] #,"IRC","IRCTorrentAnnouncer","IRCUserIdentifier"]
+		status_headers = [site_name+" Site","Tracker","TrackerSSL"] #,"IRC","IRC Announce","IRC ID"]
 
 		content = WebParser().getWebData(irc,url)
 
