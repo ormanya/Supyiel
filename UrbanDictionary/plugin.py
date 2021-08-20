@@ -131,11 +131,13 @@ class UrbanDictionary(callbacks.Plugin):
                 tags = False
             # now lets output.
             if self.registryValue('disableANSI'):  # disable formatting.
+                output = ircutils.stripFormatting(output).replace('[','').replace(']','')
                 if tags:
-                    irc.reply("{0} :: {1} :: {2}".format(optterm, tags, ircutils.stripFormatting(output)))
+                    irc.reply("{0} :: {1} :: {2}".format(optterm, tags, output))
                 else:
-                    irc.reply("{0} :: {1}".format(optterm, ircutils.stripFormatting(output)))
+                    irc.reply("{0} :: {1}".format(optterm, output))
             else:  # colors.
+                output = output.replace('[','').replace(']','')
                 if tags:
                     irc.reply("{0} :: {1} :: {2}".format(self._red(optterm), tags, output))
                 else:
