@@ -100,14 +100,16 @@ class FML(callbacks.Plugin):
                 irc.error(str(e), Raise=True)
             try:
                 tree = html.fromstring(page.content)
-                s = tree.xpath('//*[@id="content"]/div/div[1]/div[1]/article[1]/div[1]/div[2]/a/text()')
+                # s = tree.xpath('//*[@id="content"]/div/div[1]/div[1]/article[1]/div[1]/div[2]/a/text()')
+                s = tree.xpath('//article[1]/a/text()')
+                print(s[0])
                 s = s[0].replace('\n','')
                 if len(s) > 0:
                     irc.reply(s)
                 else:
                     irc.reply('Fuck your life. No results for you. Try again.')
             except:
-                irc.reply('Fuck your life. No results for you. Try again.')
+                irc.reply('Fuck your life2. No results for you. Try again.')
 
     fml = wrap(fml, [additional('positiveInt')])
 
