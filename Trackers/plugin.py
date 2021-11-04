@@ -20,8 +20,8 @@ from datetime import datetime
 
 
 
-status_commands = ['btnStatus', 'redStatus', 'ptpStatus', 'ggnStatus', 'arStatus', 'empStatus']
-status_trackers = ['btn', 'red', 'ptp', 'ggn', 'ar', 'emp']
+status_commands = ['btnStatus', 'redStatus', 'ptpStatus', 'ggnStatus', 'arStatus', 'empStatus','mtvStatus']
+status_trackers = ['btn', 'red', 'ptp', 'ggn', 'ar', 'emp','mtv']
 
 
 class WebParser():
@@ -181,6 +181,28 @@ class Trackers(callbacks.Plugin):
 			irc.reply(outstr)
 
 	red = wrap(redStatus, [optional("something")])
+
+	def mtvStatus(self, irc, msg, args, opts):
+		"""[--message]
+
+		Check the status of MoreThanTV site, tracker, and irc.
+		"""
+		url = "http://205.185.118.31/status.json"
+		site_name = "MTV"
+
+		content = WebParser().getWebData(irc,url)
+
+		status = [content["moreme"], content["tracker"], content["trackerssl"], content["irc"]]
+		status_headers = [site_name+" Site","Tracker","Tracker SSL","IRC"]
+		breakpoints = [0]
+		line_headers = [""]
+ 
+		outStr = WebParser().prepareStatusString(site_name, status, status_headers, breakpoints,line_headers)
+
+		for i in range(0, len(outStr)):
+			irc.reply(outStr[i])
+			
+	mtv = wrap(mtvStatus, [optional("something")])
 
 	def opsStatus(self, irc, msg, args, opts):
 		"""[--message]
