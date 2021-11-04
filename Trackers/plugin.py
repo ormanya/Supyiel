@@ -187,7 +187,7 @@ class Trackers(callbacks.Plugin):
 
 		Check the status of MoreThanTV site, tracker, and irc.
 		"""
-		url = "http://205.185.118.31/status.json"
+		url = "http://is.morethantv.online/status.json"
 		site_name = "MTV"
 
 		content = WebParser().getWebData(irc,url)
