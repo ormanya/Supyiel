@@ -20,6 +20,7 @@ class WebParser():
 
 	def getWebData(self, irc, url):
 		headers = {'User-Agent' : 'Mozilla/5.0 (X11; Linux i686) AppleWebKit/537.17 (KHTML, like Gecko) Chrome/24.0.1312.27 Safari/537.17'}
+		url = requests.utils.requote_uri(url)
 		try:
 			content = requests.get(url, headers=headers)
 			return content.json()
@@ -31,33 +32,35 @@ class Quotes(callbacks.Plugin):
 	"""Contains commands for checking server status of various trackers."""
 	threaded = True
 
-	def Taytay(self, irc, msg, args, opts):
-		"""[--image]
+	def Taytay(self, irc, msg, args, opts=None):
+		"""[--album | --song]
 
-		Returns Taylor Swift quote from https://taylor.rest. Use --image to return an image too.
+		Returns Taylor Swift quote from https://taylorswiftapi.herokuapp.com/. 
+		Use --album or --song to restrict search to specific tracks.
 		"""
 
 		# Get quote
-		url = "https://api.taylor.rest/"
+		url = "https://taylorswiftapi.herokuapp.com/get"
+		if opts is not None:
+			category = opts.split(" ", 1)[0].replace("--","")
+			title = opts.split(" ", 1)[1]
+			url = "{}?{}={}".format(url, category, title)
 		key = "quote"
-		content = WebParser().getWebData(irc,url)
+
+		try:
+			content = WebParser().getWebData(irc,url)
+		except:
+			return
+
 		outstr = content[key]
 
 
 		outstr += " -Taylor Swift "
 		# Get image if available
-		if opts == "--image":
-			url = url + "image"
-			key = "url"
-			try:
-				content = WebParser().getWebData(irc,url)
-				outstr += " {}".format(content[key])
-			except:
-				pass
 
 		irc.reply(outstr)
 
-	tay = wrap(Taytay, [optional("something")])
+	tay = wrap(Taytay, [optional("text")])
 
 	def GoodPlace(self, irc, msg, args, opts):
 		"""[--char <name>]
