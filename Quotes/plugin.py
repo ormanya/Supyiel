@@ -1,10 +1,9 @@
 # -*- coding: utf-8 -*-
-###
-# Copyright (c) 2021 Ormanya
+#
+# Copyright (c) 2022 Ormanya
 # All rights reserved.
 #
 #
-###
 
 import supybot.plugins as plugins
 from supybot.commands import *
@@ -23,10 +22,10 @@ class WebParser():
 		url = requests.utils.requote_uri(url)
 		try:
 			content = requests.get(url, headers=headers)
-			return content.json()
+			return content.json(), content.status_code
 		except:
-			irc.reply("Error: Couldn't connect to "+url)
-			sys.exit()
+			#irc.reply("Error: Couldn't connect to "+url)
+			return None,200
 
 class Quotes(callbacks.Plugin):
 	"""Contains commands for checking server status of various trackers."""
@@ -39,26 +38,26 @@ class Quotes(callbacks.Plugin):
 		Use --album or --song to restrict search to specific tracks.
 		"""
 
+		valid_flags = ['--song','--album']
 		# Get quote
 		url = "https://taylorswiftapi.herokuapp.com/get"
 		if opts is not None:
 			category = opts.split(" ", 1)[0].replace("--","")
-			title = opts.split(" ", 1)[1]
-			url = "{}?{}={}".format(url, category, title)
+			if "--{}".format(category) in valid_flags:
+				title = opts.split(" ", 1)[1]
+				url = "{}?{}={}".format(url, category, title)
+			else:
+				irc.reply("Error: Invalid parameter '{}'. Valid parameters are {} ".format(opts, valid_flags))
+				return
 		key = "quote"
 
-		try:
-			content = WebParser().getWebData(irc,url)
-		except:
-			return
-
-		outstr = content[key]
-
-
-		outstr += " -Taylor Swift "
-		# Get image if available
-
-		irc.reply(outstr)
+		content, status_code = WebParser().getWebData(irc,url)
+		print("This is it{}it".format(content))
+		if status_code != 200 or content is None:
+			irc.reply("Error: The {} '{}' does not exist in the database.".format(category, title))
+		else:
+			outstr = "{} -Taylor Swift".format(content[key])
+			irc.reply(outstr)
 
 	tay = wrap(Taytay, [optional("text")])
 

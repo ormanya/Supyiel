@@ -88,6 +88,8 @@ class _Plugin(callbacks.Plugin):
             irc.reply("Sorry, I couldn't find anything on that one.")
             return
         res=res['results'][0] #just use the first one found
+        print(res)
+        print('hi')
         res_title = ircutils.bold(res['name'])
         res_date = res['first_air_date']
         res_avg = str(res['vote_average'])
